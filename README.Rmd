@@ -1,0 +1,121 @@
+---
+title: "GOcontext"
+output: github_document
+---
+
+[![R-CMD-check](https://github.com/Thomas-Rauter/GOcontext/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/Thomas-Rauter/GOcontext/actions/workflows/R-CMD-check.yaml?query=branch%3Amain)
+[![codecov](https://codecov.io/gh/Thomas-Rauter/GOcontext/graph/badge.svg?token=NSXQZRSJ5B)](https://codecov.io/gh/Thomas-Rauter/GOcontext)
+
+
+<div style="display: flex; align-items: flex-start; gap: 20px;">
+
+<img src="man/figures/GOcontext_hex.png" width="180"/>
+
+<div>
+
+Context-aware restriction of the Gene Ontology (GO) hypothesis space for
+enrichment analysis.
+
+`GOcontext` constructs **context-specific GO subgraphs** to reduce the number of
+tested GO terms prior to enrichment testing, with the goal of reducing multiple
+testing burden while preserving GO structure and reproducibility.
+
+</div>
+</div>
+
+See the full documentation at the
+[GOcontext website](https://thomas-rauter.github.io/GOcontext/).
+
+
+
+## Installation
+
+<!-- ### Bioconductor -->
+
+<!-- ```{r install from Bioconductor, eval = TRUE} -->
+<!-- if (!requireNamespace("BiocManager", quietly = TRUE)) { -->
+<!--   install.packages("BiocManager") -->
+<!-- } -->
+<!-- BiocManager::install("GOcontext") -->
+<!-- ``` -->
+
+### Development version
+
+```{r install from GitHub, eval = FALSE}
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+
+remotes::install_github(
+  "Thomas-Rauter/GOcontext",   # GitHub repository
+  ref = "<tag>",        # Version to install, e.g. v0.1.0 
+  dependencies = TRUE,  # Install all dependencies
+  upgrade = "always"    # Always upgrade dependencies
+  # force = TRUE        # when encountering issues
+)
+```
+
+
+
+## Quick Start
+
+Below is a minimal, conceptual workflow:
+
+```{r quickstart, eval = FALSE}
+library(GOcontext)
+
+# 1) Load the GO DAG for one ontology
+go <- load_go(ont = "BP")
+
+# 2) Pick a seed bundle (or combine multiple)
+seed <- get_seed(c(
+    "immune_system",
+    "cell_stress_bp"
+    ), ont = "BP")
+
+# 3) Expand the seed region in the GO DAG
+term_ids <- expand_seed(
+  seed = seed,
+  go = go,
+  direction = "both",
+  include_self = TRUE,
+  max_dist = 2,
+  combine_seeds = "union"
+)
+
+# 4) Induce a restricted GO subgraph
+go_sub <- build_subgraph(
+    go = go,
+    term_ids = term_ids
+    )
+
+# 5) Filter enrichment inputs before testing
+t2g_sub <- filter_term2gene(
+    term2gene,
+    go_sub
+    )
+
+# 6) Run enrichment on the restricted hypothesis space
+clusterProfiler::enricher(
+  gene          = genes_of_interest,
+  TERM2GENE     = t2g_sub,
+  universe      = background_genes
+)
+```
+
+For details on seed selection, expansion controls, semantic refinement
+(`GOSemSim`), and practical end-to-end examples, see the Get Started
+vignette.   
+
+
+
+## Issues
+
+Bug reports and feature requests are welcome via GitHub Issues.
+
+
+
+## License
+
+MIT
+

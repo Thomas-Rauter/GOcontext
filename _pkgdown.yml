@@ -1,0 +1,56 @@
+template:
+  bootstrap: 5
+
+url: https://csbg.github.io/GOcontext/
+
+llm-docs: false
+
+pkgdown:
+  title: GOcontext
+
+navbar:
+  structure:
+    left:
+      - home
+      - get-started
+      - articles
+      - reference    
+      - news
+
+  components:
+    get-started:
+      text: "Get started"
+      href: articles/get_started.html
+      
+    articles:
+      text: "Articles"
+      menu:
+        - text: "Motivation and Approach"
+          href: articles/motivation_and_approach.html
+        - text: "expand_seed() parameters"
+          href: articles/expand_seed_params.html
+
+    news:
+      text: "News"
+      href: news/index.html
+
+reference:
+  - title: User Available Functions
+    desc: This section contains the documentation for all functions available 
+          to the user in the GOcontext R package.
+    contents:
+      - build_subgraph
+      - expand_seed
+      - filter_genesets
+      - filter_term2gene
+      - get_seed
+      - go_ids
+      - go_labels
+      - go_keep_ids
+      - go_terms
+      - list_seeds
+      - load_go
+      - seed_from_keywords
+      - summarize_terms
+
+

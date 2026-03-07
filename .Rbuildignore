@@ -1,0 +1,13 @@
+^renv$
+^renv\.lock$
+^.*\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+^\.github$
+^_pkgdown\.yml$
+^README\.Rmd$
+^lib$
+^dev$
+^docs$
+^seed_bundles$
+^coverage\.html$

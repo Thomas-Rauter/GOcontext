@@ -1,0 +1,16 @@
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+.Rprofile
+doc/
+docs/
+renv.lock
+renv/
+dev/
+lib/
+inst/doc
+results/
+GOcontext.BiocCheck/
+GOcontext.Rproj
+coverage.html

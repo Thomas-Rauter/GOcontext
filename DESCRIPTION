@@ -1,0 +1,55 @@
+Package: GOcontext
+Type: Package
+Title: Context-Aware GO Subgraph Construction for Enrichment
+Version: 0.1.0
+Authors@R: c(
+    person(
+      given = "Thomas",
+      family = "Rauter",
+      email = "rauterthomas0@gmail.com",
+      role = c("aut", "cre", "fnd"),
+      comment = c(ORCID = "0009-0004-5578-3628")
+    ))
+Description: GOcontext provides tools for constructing context-specific
+    subgraphs of the Gene Ontology (GO) to restrict the hypothesis
+    space prior to functional enrichment analysis. The package enables
+    curated or keyword-derived GO seed selection, graph-based expansion
+    within a GO DAG, optional semantic similarity refinement using
+    GOSemSim, and formal subgraph restriction. Resulting subgraphs can
+    be used to filter TERM2GENE mappings, gene set collections, or
+    annotation tables before statistical testing. This approach reduces
+    multiple testing burden in a principled manner while preserving
+    ontology structure and reproducibility.
+License: MIT + file LICENSE
+URL: https://thomas-rauter.github.io/GOcontext/,
+    https://github.com/Thomas-Rauter/GOcontext
+BugReports: https://github.com/Thomas-Rauter/GOcontext/issues
+Encoding: UTF-8
+LazyData: false
+RoxygenNote: 7.3.3
+Depends:
+    R (>= 4.5)
+Imports:
+    GO.db,
+    AnnotationDbi,
+    rlang,
+    methods,
+    stats
+Suggests:
+    GOSemSim,
+    org.Hs.eg.db,
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    BiocStyle,
+    pkgdown,
+    cluster
+VignetteBuilder: knitr
+biocViews:
+    KEGG,
+    GO,
+    GeneSetEnrichment,
+    Annotation,
+    GraphAndNetwork,
+    SystemsBiology,
+    Software
