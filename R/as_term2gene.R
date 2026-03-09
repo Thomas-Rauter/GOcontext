@@ -16,18 +16,16 @@
 #' @export
 as_term2gene <- function(go) {
     .assert_go_like(
-        go = go,
+        go          = go,
         require_map = TRUE
     )
-
     map <- .restrict_go_map(
         map = go@map,
-        go = go
+        go  = go
     )
-
     data.frame(
-        term = map$go_id,
-        gene = map$gene_id,
+        term             = map$go_id,
+        gene             = map$gene_id,
         stringsAsFactors = FALSE
     )
 }
@@ -54,7 +52,10 @@ as_term2gene <- function(go) {
 #' @return A filtered \code{data.frame} containing GO-to-gene mappings.
 #'
 #' @noRd
-.restrict_go_map <- function(map, go) {
+.restrict_go_map <- function(
+        map,
+        go
+) {
     ids <- go@terms$go_id
     ids <- ids[!is.na(ids)]
     ids <- unique(ids)

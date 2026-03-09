@@ -1,67 +1,60 @@
 #' Load a GO sub-ontology graph from \pkg{GO.db}
 #'
 #' @description
-#' Constructs a reproducible, in-memory representation of a single GO
-#' sub-ontology (BP, MF, or CC) using the Bioconductor annotation package
-#' \pkg{GO.db}. The returned \code{GO} object contains GO term metadata and the
-#' directed acyclic graph (DAG) structure required for seed expansion and
-#' subgraph restriction.
+#' Loads a single Gene Ontology (GO) sub-ontology (BP, MF, or CC) from
+#' the Bioconductor annotation package \pkg{GO.db} and constructs an
+#' in-memory directed acyclic graph (DAG) representation.
 #'
-#' The ontology snapshot is defined by the installed version of \pkg{GO.db}.
-#' The \pkg{GO.db} package version is recorded in the returned object for
-#' reproducibility.
+#' The returned \code{GO} object contains GO term metadata together with
+#' the parent–child relationships required for graph traversal and
+#' downstream restriction operations. The ontology snapshot corresponds
+#' to the installed version of \pkg{GO.db}, which is recorded in the
+#' returned object for reproducibility.
 #'
 #' @param ont \code{character(1)} GO sub-ontology to load. One of
 #'   \code{"BP"}, \code{"MF"}, or \code{"CC"}.
 #'
-#' @param include_obsolete \code{logical(1)} If \code{TRUE}, include obsolete GO
-#'   terms in the returned object. If \code{FALSE} (default), obsolete terms
-#'   are excluded.
-#'
-#' @param compute_depth \code{logical(1)} If \code{TRUE} (default), compute and
-#'   store the depth of each GO term in the returned object. Precomputing depth
-#'   speeds up downstream operations that rely on hierarchical distance. If
-#'   \code{FALSE}, the depth vector is left empty and may be computed later
-#'   when required.
+#' @param include_obsolete \code{logical(1)} Whether obsolete GO terms
+#'   should be included. If \code{FALSE} (default), obsolete terms are
+#'   removed from the graph.
 #'
 #' @return
-#' A \code{GO} S4 object representing the requested GO sub-ontology, including
-#' term metadata, DAG edges/adjacency, and the \pkg{GO.db} version used.
-#'
-#' @details
-#' Conceptual steps performed by \code{load_go()}:
-#' \enumerate{
-#'   \item Validate inputs and optionally check the installed \pkg{GO.db}
-#'     version.
-#'   \item Extract GO term identifiers and term names from \pkg{GO.db} and
-#'     retain only those belonging to \code{ont}.
-#'   \item Optionally remove obsolete terms (using the obsolete mapping when
-#'     available, otherwise by detecting \code{"(obsolete)"} suffixes in term
-#'     names).
-#'   \item Extract ontology edges for \code{ont} (parent-child relationships)
-#'     from \pkg{GO.db} and keep only edges where both endpoints are retained.
-#'   \item Build adjacency representations (parents/children) for DAG
-#'     traversal.
-#'   \item Return a \code{GO} object with embedded provenance, including the
-#'     \pkg{GO.db} version.
+#' A \code{GO} S4 object representing the requested GO sub-ontology.
+#' The object contains:
+#' \itemize{
+#'   \item GO term metadata
+#'   \item parent–child relationships defining the ontology DAG
+#'   \item adjacency lists for efficient graph traversal
+#'   \item an empty GO-to-gene mapping table to be populated with
+#'         \code{attach_org()}
+#'   \item the \pkg{GO.db} version used to construct the graph
 #' }
 #'
+#' @details
+#' The ontology graph loaded by \code{load_go()} serves as the starting
+#' point for GO restriction workflows implemented in this package.
+#' Organism-specific mappings can be attached using
+#' \code{attach_org()}, and the graph can subsequently be restricted
+#' using functions such as \code{filter_mapped()} or \code{subset_go()}.
+#'
 #' @examples
-#' go_cc <- load_go(ont = "CC", compute_depth = FALSE)
+#' go_cc <- load_go("CC")
 #' class(go_cc)
-#' head(go_terms(go_cc)[, c("go_id", "term")])
 #'
 #' @export
 load_go <- function(
         ont              = c("BP", "MF", "CC"),
-        include_obsolete = FALSE,
-        compute_depth    = TRUE
+        include_obsolete = FALSE
 ) {
     ont <- match.arg(ont)
-    .load_go_validate_inputs(
-        include_obsolete = include_obsolete,
-        compute_depth    = compute_depth
+    if (!is.logical(include_obsolete)
+        || length(include_obsolete) != 1L
+        || is.na(include_obsolete)) {
+        rlang::abort(
+            "`include_obsolete` must be a logical(1): TRUE or FALSE.",
+            arg = "include_obsolete"
         )
+    }
 
     parent_map <- .get_parent_map(ont)
     term_df <- .get_go_term_df(
@@ -75,24 +68,11 @@ load_go <- function(
         parent_map = parent_map,
         keep_ids   = keep_ids
         )
-    edges <- edges[!duplicated(edges), , drop = FALSE]
     adj <- .make_adj_lists(
         keep_ids = keep_ids,
         edges    = edges
         )
 
-    depth <- integer(0)
-    if (isTRUE(compute_depth)) {
-        roots <- .get_roots(parents_list = adj$parents)
-        depth <- .compute_depth(
-            keep_ids      = keep_ids,
-            children_list = adj$children,
-            roots         = roots
-        )
-        storage.mode(depth) <- "integer"
-    }
-
-    ids <- term_df$go_id
     methods::new(
         "GO",
         ontology = ont,
@@ -102,7 +82,6 @@ load_go <- function(
         edges = edges,
         parents = adj$parents,
         children = adj$children,
-        depth = depth,
         map = data.frame(
             go_id = character(0),
             gene_id = character(0),
@@ -113,50 +92,6 @@ load_go <- function(
 
 
 # Level 1 function definitions -------------------------------------------------
-
-
-#' Validate inputs for load_go()
-#'
-#' @param include_obsolete logical(1). Whether to include obsolete terms.
-#' @param compute_depth logical(1). Whether to compute and store the depth
-#'   vector in the returned GO object.
-#'
-#' @return Invisibly TRUE on success.
-#' @noRd
-.load_go_validate_inputs <- function(
-        include_obsolete,
-        compute_depth
-) {
-    # ---- include_obsolete
-    if (!is.logical(include_obsolete) || length(include_obsolete) != 1L) {
-        rlang::abort(
-            message = "`include_obsolete` must be a logical(1): TRUE or FALSE.",
-            arg = "include_obsolete"
-        )
-    }
-    if (is.na(include_obsolete)) {
-        rlang::abort(
-            message = "`include_obsolete` must not be NA.",
-            arg = "include_obsolete"
-        )
-    }
-
-    # ---- compute_depth
-    if (!is.logical(compute_depth) || length(compute_depth) != 1L) {
-        rlang::abort(
-            message = "`compute_depth` must be a logical(1): TRUE or FALSE.",
-            arg = "compute_depth"
-        )
-    }
-    if (is.na(compute_depth)) {
-        rlang::abort(
-            message = "`compute_depth` must not be NA.",
-            arg = "compute_depth"
-        )
-    }
-
-    invisible(TRUE)
-}
 
 
 #' @noRd
@@ -190,8 +125,7 @@ load_go <- function(
         ont,
         BP = "GOBPPARENTS",
         MF = "GOMFPARENTS",
-        CC = "GOCCPARENTS",
-        rlang::abort("Unsupported ontology: {ont}.")
+        CC = "GOCCPARENTS"
     )
 }
 
@@ -443,87 +377,6 @@ load_go <- function(
         parents  = parents,
         children = children
         )
-}
-
-
-#' Identify root nodes in a GO subgraph
-#'
-#' @description
-#' Determines root GO terms within a restricted set of GO identifiers.
-#' A root is defined as a term that has no parents within the restricted graph.
-#'
-#' @param parents_list `list` Named list mapping GO IDs to their parent IDs.
-#'
-#' @return `character()` Vector of GO IDs representing root nodes.
-#'
-#' @noRd
-.get_roots <- function(parents_list) {
-    if (!is.list(parents_list) || is.null(names(parents_list))) {
-        rlang::abort("`parents_list` must be a named list.")
-    }
-    names(parents_list)[lengths(parents_list) == 0L]
-}
-
-
-#' Computes the depth of each GO term in a directed acyclic graph
-#' relative to identified root nodes.
-#'
-#' @description
-#' Depth is defined here as the **minimum** number of edges on any path
-#' from a root to the term (i.e., the shortest-path distance in an
-#' unweighted DAG).
-#'
-#' @param keep_ids `character()` Vector of GO identifiers.
-#'
-#' @param children_list `list` Named list mapping GO IDs to their
-#'   child identifiers.
-#'
-#' @param roots `character()` Vector of GO IDs designated as roots.
-#'
-#' @return `integer()` Named integer vector of depths, indexed by
-#'   GO identifier. Root nodes have depth 0; unreachable nodes
-#'   remain `NA`.
-#'
-#' @details
-#' Depth is computed using a breadth-first traversal from all root nodes
-#' simultaneously, which yields the minimum (shortest-path) distance.
-#' Note that other conventions exist (e.g., maximum distance from a root);
-#' this function intentionally uses the minimum-distance definition.
-#'
-#' @noRd
-.compute_depth <- function(
-        keep_ids,
-        children_list,
-        roots
-) {
-    .validate_keep_ids(keep_ids)
-    depth <- stats::setNames(
-        rep.int(
-            NA_integer_,
-            length(keep_ids)
-        ),
-        keep_ids
-    )
-
-    queue <- roots
-    depth[roots] <- 0L
-
-    head <- 1L
-    while (head <= length(queue)) {
-        current <- queue[[head]]
-        head <- head + 1L
-
-        kids <- children_list[[current]]
-        if (length(kids) == 0L) next
-
-        new_kids <- kids[is.na(depth[kids])]
-        if (length(new_kids) == 0L) next
-
-        depth[new_kids] <- depth[current] + 1L
-        queue <- c(queue, new_kids)
-    }
-
-    depth
 }
 
 

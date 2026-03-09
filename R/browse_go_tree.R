@@ -3,7 +3,7 @@
 #' @description
 #' Provides an interactive console browser for exploring the Gene Ontology
 #' hierarchy. The user can navigate through parent–child relationships,
-#' mark nodes of interest, and return the selected GO IDs.
+#' add nodes of interest, and return the selected GO IDs.
 #'
 #' @param go A \code{GO} or \code{GOSubgraph} object.
 #'
@@ -36,7 +36,7 @@ browse_go_tree <- function(go) {
         menu_entries <- paste0(current, "  ", labels)
 
         choices <- c(
-            "[mark parent of these terms]",
+            "[add current node]",
             "[go up]",
             "[finish]",
             menu_entries
@@ -69,7 +69,7 @@ browse_go_tree <- function(go) {
                     )
                 if (!is.na(covered_by)) {
                     message(
-                        "Not marked. Already covered by ancestor: ",
+                        "Not added. Already covered by ancestor: ",
                         covered_by
                         )
                     next
@@ -89,7 +89,7 @@ browse_go_tree <- function(go) {
                 }
 
                 selected <- unique(c(selected, current_node))
-                message("Marked: ", current_node)
+                message("Added: ", current_node)
             }
 
             next
@@ -106,9 +106,14 @@ browse_go_tree <- function(go) {
         current_node <- node
         current <- children[[node]]
 
-        if (length(current) == 0) {
+        if (!length(current)) {
+            message(
+                "Term ",
+                node,
+                " has no children in this graph. ",
+                "Added to the list of selected terms."
+                )
             selected <- unique(c(selected, node))
-            message("Leaf selected: ", node)
 
             state <- stack[[length(stack)]]
             stack <- stack[-length(stack)]
@@ -140,6 +145,11 @@ browse_go_tree <- function(go) {
 #' Determines whether GO term \code{a} is an ancestor of GO term \code{b}
 #' by traversing parent relationships in the GO graph.
 #'
+#' Because the Gene Ontology is a directed acyclic graph (DAG), terms may
+#' have multiple parents. This function performs a breadth-first traversal
+#' of parent relationships starting from \code{b} and returns \code{TRUE}
+#' if \code{a} occurs on any ancestor path.
+#'
 #' The comparison is strict: if \code{a == b}, the function returns
 #' \code{FALSE}.
 #'
@@ -156,14 +166,34 @@ browse_go_tree <- function(go) {
         b,
         parents
 ) {
-    # TRUE if a is an ancestor of b (a == b counts as FALSE here)
-    cur <- b
-    repeat {
-        pr <- parents[[cur]]
-        if (length(pr) == 0) return(FALSE)
-        if (a %in% pr) return(TRUE)
-        cur <- pr[1]  # NOTE: chooses one path; see comment below
+    if (identical(a, b)) {
+        return(FALSE)
     }
+
+    seen <- character(0)
+    queue <- b
+
+    while (length(queue)) {
+        cur <- queue[[1L]]
+        queue <- queue[-1L]
+
+        pr <- parents[[cur]]
+        if (!length(pr)) {
+            next
+        }
+
+        if (a %in% pr) {
+            return(TRUE)
+        }
+
+        new <- setdiff(pr, seen)
+        if (length(new)) {
+            seen <- c(seen, new)
+            queue <- c(queue, new)
+        }
+    }
+
+    FALSE
 }
 
 
@@ -171,7 +201,7 @@ browse_go_tree <- function(go) {
 #'
 #' @description
 #' Tests whether a GO term is a descendant of any GO ID in a set of
-#' selected terms. Used to avoid marking nodes that are already covered
+#' selected terms. Used to avoid adding nodes that are already covered
 #' by a previously selected ancestor.
 #'
 #' @param x \code{character(1)} GO ID to test.
@@ -198,7 +228,7 @@ browse_go_tree <- function(go) {
 #'
 #' @description
 #' Identifies selected GO IDs that are descendants of the supplied GO
-#' term. Used when marking a new node to remove selections that become
+#' term. Used when adding a new node to remove selections that become
 #' redundant because they are covered by the new ancestor.
 #'
 #' @param x \code{character(1)} Candidate ancestor GO ID.
@@ -255,8 +285,12 @@ browse_go_tree <- function(go) {
 #' Construct a hierarchical path string for a GO term
 #'
 #' @description
-#' Builds a textual representation of the hierarchical path from a GO
-#' term to the ontology root by traversing parent relationships.
+#' Builds a textual representation of one hierarchical path from a GO
+#' term to an ontology root by traversing parent relationships.
+#'
+#' Because the Gene Ontology is a directed acyclic graph (DAG), terms
+#' may have multiple parents. This function follows one parent path to
+#' construct a representative rootward path string.
 #'
 #' The path is returned as a string with GO IDs separated by
 #' \code{" > "}.

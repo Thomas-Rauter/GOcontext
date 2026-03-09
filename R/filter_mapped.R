@@ -33,7 +33,7 @@ filter_mapped <- function(go) {
         keep_ids = keep_ids
     )
 
-    adj <- .induce_adj(
+    adj <- .induce_adjacency(
         parents = go@parents,
         children = go@children,
         keep_ids = keep_ids
@@ -60,7 +60,6 @@ filter_mapped <- function(go) {
         edges    = edges_sub,
         parents  = adj$parents,
         children = adj$children,
-        depth    = integer(0),
         map      = go@map
     )
 }
@@ -112,89 +111,10 @@ filter_mapped <- function(go) {
 ) {
     keep <- unique(map$go_id)
     keep <- keep[!is.na(keep)]
+    universe[universe %in% keep]
     intersect(
         keep,
         universe
-        )
-}
-
-
-#' Induce an edge table on mapped GO terms
-#'
-#' @description
-#' Restricts an edge table to edges whose child and parent GO IDs are both
-#' contained in the retained set of mapped GO terms.
-#'
-#' @param edges \code{data.frame} Edge table with columns \code{child} and
-#'   \code{parent}.
-#' @param keep_ids \code{character()} vector of GO IDs to retain.
-#'
-#' @return A \code{data.frame} containing the induced edge set.
-#'
-#' @noRd
-.induce_edges <- function(
-        edges,
-        keep_ids
-) {
-    if (!nrow(edges) || !length(keep_ids)) {
-        return(data.frame(
-            child = character(0),
-            parent = character(0),
-            stringsAsFactors = FALSE
-        ))
-    }
-
-    ok <- edges$child %in% keep_ids & edges$parent %in% keep_ids
-    edges[ok, , drop = FALSE]
-}
-
-
-#' Induce adjacency lists on mapped GO terms
-#'
-#' @description
-#' Restricts the parent and child adjacency lists of a GO graph to a given
-#' set of retained GO IDs.
-#'
-#' Adjacency entries pointing outside the retained node set are removed.
-#'
-#' @param parents Named list of parent relationships from the GO graph.
-#' @param children Named list of child relationships from the GO graph.
-#' @param keep_ids \code{character()} vector of GO IDs to retain.
-#'
-#' @return A named list with elements \code{parents} and \code{children},
-#'   each restricted to \code{keep_ids}.
-#'
-#' @noRd
-.induce_adj <- function(
-        parents,
-        children,
-        keep_ids
-) {
-    parents_sub <- parents[keep_ids]
-    children_sub <- children[keep_ids]
-
-    parents_sub <- lapply(parents_sub, function(x) {
-        if (is.null(x) || !length(x)) {
-            return(character(0))
-        }
-        x <- x[x %in% keep_ids]
-        if (length(x)) unique(x) else character(0)
-    })
-
-    children_sub <- lapply(children_sub, function(x) {
-        if (is.null(x) || !length(x)) {
-            return(character(0))
-        }
-        x <- x[x %in% keep_ids]
-        if (length(x)) unique(x) else character(0)
-    })
-
-    names(parents_sub) <- keep_ids
-    names(children_sub) <- keep_ids
-
-    list(
-        parents  = parents_sub,
-        children = children_sub
         )
 }
 

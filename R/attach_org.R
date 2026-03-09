@@ -20,7 +20,7 @@ attach_org <- function(
         OrgDb,
         keytype = "ENTREZID"
 ) {
-    .attach_org_validate_input(
+    .attach_org_validate_inputs(
         go      = go,
         OrgDb   = OrgDb,
         keytype = keytype
@@ -57,7 +57,7 @@ attach_org <- function(
 #' @return Invisibly \code{TRUE} if validation succeeds.
 #'
 #' @noRd
-.attach_org_validate_input <- function(
+.attach_org_validate_inputs <- function(
         go,
         OrgDb,
         keytype
@@ -106,6 +106,20 @@ attach_org <- function(
         )
     }
 
+    available_columns <- AnnotationDbi::columns(OrgDb)
+    if (!keytype %in% available_columns) {
+        rlang::abort(
+            message = sprintf(
+                paste(
+                    "`keytype` (%s) is not available as a selectable",
+                    "column in `OrgDb`."
+                ),
+                sQuote(keytype)
+            ),
+            arg = "keytype"
+        )
+    }
+
     invisible(TRUE)
 }
 
@@ -113,9 +127,13 @@ attach_org <- function(
 #' Build GO-to-gene mapping from an OrgDb
 #'
 #' @description
-#' Retrieves GO-to-gene mappings from an \code{OrgDb} using
-#' \code{AnnotationDbi::select()} and restricts them to GO terms present in
-#' the supplied GO graph.
+#' Retrieves GO-to-gene mappings from an \code{OrgDb} and restricts them to
+#' GO terms present in the supplied GO graph.
+#'
+#' The function prefers a GO-driven lookup, using the GO IDs already present
+#' in \code{go} as query keys. If the supplied \code{OrgDb} does not support
+#' \code{"GO"} as a keytype, it falls back to retrieving all keys for the
+#' requested gene identifier type and filtering the result to the GO graph.
 #'
 #' The resulting mapping contains two columns: \code{go_id} and
 #' \code{gene_id}.
@@ -132,39 +150,54 @@ attach_org <- function(
         OrgDb,
         keytype
 ) {
-    go_ids <- go@terms$go_id
+    go_ids <- unique(go@terms$go_id)
     go_ids <- go_ids[!is.na(go_ids)]
 
-    keys <- AnnotationDbi::keys(
-        x       = OrgDb,
-        keytype = keytype
-    )
+    if (!length(go_ids)) {
+        return(.empty_go_map())
+    }
 
-    if (!length(keys)) {
-        rlang::abort(
-            message = sprintf(
-                "No keys returned from `OrgDb` for keytype %s.",
-                sQuote(keytype)
+    available_keytypes <- AnnotationDbi::keytypes(OrgDb)
+    available_columns  <- AnnotationDbi::columns(OrgDb)
+
+    use_go_keytype <-
+        "GO" %in% available_keytypes && keytype %in% available_columns
+
+    if (use_go_keytype) {
+        res <- AnnotationDbi::select(
+            x       = OrgDb,
+            keys    = go_ids,
+            keytype = "GO",
+            columns = keytype
+        )
+    } else {
+        keys <- AnnotationDbi::keys(
+            x       = OrgDb,
+            keytype = keytype
+        )
+
+        if (!length(keys)) {
+            rlang::abort(
+                message = sprintf(
+                    "No keys returned from `OrgDb` for keytype %s.",
+                    sQuote(keytype)
+                )
             )
+        }
+
+        res <- AnnotationDbi::select(
+            x       = OrgDb,
+            keys    = keys,
+            keytype = keytype,
+            columns = "GO"
         )
     }
 
-    res <- AnnotationDbi::select(
-        x       = OrgDb,
-        keys    = keys,
-        keytype = keytype,
-        columns = "GO"
-    )
-
     if (!nrow(res)) {
-        return(data.frame(
-            go_id            = character(0),
-            gene_id          = character(0),
-            stringsAsFactors = FALSE
-        ))
+        return(.empty_go_map())
     }
 
-    if (!all(c(keytype, "GO") %in% colnames(res))) {
+    if (!all(c("GO", keytype) %in% colnames(res))) {
         rlang::abort(
             message = paste(
                 "`AnnotationDbi::select()` did not return the expected",
@@ -174,14 +207,11 @@ attach_org <- function(
     }
 
     res <- res[!is.na(res$GO), , drop = FALSE]
+    res <- res[!is.na(res[[keytype]]), , drop = FALSE]
     res <- res[res$GO %in% go_ids, , drop = FALSE]
 
     if (!nrow(res)) {
-        return(data.frame(
-            go_id            = character(0),
-            gene_id          = character(0),
-            stringsAsFactors = FALSE
-        ))
+        return(.empty_go_map())
     }
 
     map <- data.frame(
@@ -190,7 +220,6 @@ attach_org <- function(
         stringsAsFactors = FALSE
     )
 
-    map <- map[!is.na(map$gene_id), , drop = FALSE]
     map <- map[!duplicated(map), , drop = FALSE]
     rownames(map) <- NULL
 
@@ -216,4 +245,21 @@ attach_org <- function(
 ) {
     methods::slot(go, "map") <- map
     go
+}
+
+
+# Level 2 helpers --------------------------------------------------------------
+
+
+#' Construct an empty GO-to-gene mapping table
+#'
+#' @return A zero-row \code{data.frame} with columns \code{go_id} and
+#'   \code{gene_id}.
+#' @noRd
+.empty_go_map <- function() {
+    data.frame(
+        go_id            = character(0),
+        gene_id          = character(0),
+        stringsAsFactors = FALSE
+    )
 }

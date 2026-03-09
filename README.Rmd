@@ -16,9 +16,10 @@ output: github_document
 Context-aware restriction of the Gene Ontology (GO) hypothesis space for
 enrichment analysis.
 
-`GOcontext` constructs **context-specific GO subgraphs** to reduce the number of
-tested GO terms prior to enrichment testing, with the goal of reducing multiple
-testing burden while preserving GO structure and reproducibility.
+`GOcontext` constructs **context-specific GO subgraphs** to restrict the set of
+GO terms tested in enrichment analysis. By reducing the number of tested terms
+while preserving the GO graph structure, the package aims to decrease multiple
+testing burden while maintaining a transparent and reproducible GO universe.
 
 </div>
 </div>
@@ -63,49 +64,43 @@ Below is a minimal, conceptual workflow:
 
 ```{r quickstart, eval = FALSE}
 library(GOcontext)
+library(GO.db)
+library(org.EcK12.eg.db)
 
 # 1) Load the GO DAG for one ontology
-go <- load_go(ont = "BP")
+go <- load_go("BP")
 
-# 2) Pick a seed bundle (or combine multiple)
-seed <- get_seed(c(
-    "immune_system",
-    "cell_stress_bp"
-    ), ont = "BP")
-
-# 3) Expand the seed region in the GO DAG
-term_ids <- expand_seed(
-  seed = seed,
-  go = go,
-  direction = "both",
-  include_self = TRUE,
-  max_dist = 2,
-  combine_seeds = "union"
+# 2) Attach organism annotation
+go <- attach_org(
+    go    = go,
+    OrgDb = org.EcK12.eg.db
 )
 
-# 4) Induce a restricted GO subgraph
-go_sub <- build_subgraph(
-    go = go,
-    term_ids = term_ids
-    )
+# 3) Restrict the graph to GO terms with mapped genes
+go <- filter_mapped(go)
 
-# 5) Filter enrichment inputs before testing
-t2g_sub <- filter_term2gene(
-    term2gene,
-    go_sub
-    )
+# 4) Interactively browse the GO hierarchy
+sel <- browse_go_tree(go)
 
-# 6) Run enrichment on the restricted hypothesis space
+# 5) Restrict the graph to the selected GO branches
+go_sub <- subset_go(
+    go   = go,
+    ids  = sel$ids,
+    mode = "keep"
+)
+
+# 6) Export enrichment tables
+term2gene <- as_term2gene(go_sub)
+term2name <- as_term2name(go_sub)
+
+# 7) Run enrichment analysis
 clusterProfiler::enricher(
-  gene          = genes_of_interest,
-  TERM2GENE     = t2g_sub,
-  universe      = background_genes
+    gene      = genes_of_interest,
+    TERM2GENE = term2gene,
+    TERM2NAME = term2name,
+    universe  = background_genes
 )
 ```
-
-For details on seed selection, expansion controls, semantic refinement
-(`GOSemSim`), and practical end-to-end examples, see the Get Started
-vignette.   
 
 
 

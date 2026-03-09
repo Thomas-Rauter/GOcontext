@@ -22,8 +22,6 @@
 #'   \code{character()} vector of direct parent GO IDs.
 #' @slot children \code{list} Named adjacency list: GO ID ->
 #'   \code{character()} vector of direct child GO IDs.
-#' @slot depth \code{integer} Named integer vector of node depths. May be
-#'   \code{integer(0)} if not computed.
 #' @slot map \code{data.frame} Attached organism mapping with columns
 #'   \code{go_id} and \code{gene_id}. May be empty.
 #'
@@ -32,14 +30,13 @@ methods::setClass(
     "GO",
     slots = c(
         ontology = "character",
-        version = "character",
-        ids = "character",
-        terms = "data.frame",
-        edges = "data.frame",
-        parents = "list",
+        version  = "character",
+        ids      = "character",
+        terms    = "data.frame",
+        edges    = "data.frame",
+        parents  = "list",
         children = "list",
-        depth = "integer",
-        map = "data.frame"
+        map      = "data.frame"
     )
 )
 
@@ -68,6 +65,17 @@ setValidity("GO", function(object) {
         return("slot 'map' must contain columns 'go_id' and 'gene_id'.")
     }
 
+    if (!identical(names(object@parents), object@ids)) {
+        return("names(parents) must match ids.")
+    }
+    if (!identical(names(object@children), object@ids)) {
+        return("names(children) must match ids.")
+    }
+
+    if (!all(c("child", "parent") %in% colnames(object@edges))) {
+        return("slot 'edges' must contain columns 'child' and 'parent'.")
+    }
+
     TRUE
 })
 
@@ -94,8 +102,6 @@ setValidity("GO", function(object) {
 #'   \code{parent}.
 #' @slot parents \code{list} Adjacency: parents per node.
 #' @slot children \code{list} Adjacency: children per node.
-#' @slot depth \code{integer} Named integer vector of node depths. May be
-#'   \code{integer(0)} if not computed.
 #' @slot map \code{data.frame} Attached organism mapping with columns
 #'   \code{go_id} and \code{gene_id}. May be empty.
 #'
@@ -104,17 +110,16 @@ methods::setClass(
     "GOSubgraph",
     slots = c(
         ontology = "character",
-        version = "character",
+        version  = "character",
         keep_ids = "character",
         drop_ids = "character",
         seed_ids = "character",
-        mode = "character",
-        terms = "data.frame",
-        edges = "data.frame",
-        parents = "list",
+        mode     = "character",
+        terms    = "data.frame",
+        edges    = "data.frame",
+        parents  = "list",
         children = "list",
-        depth = "integer",
-        map = "data.frame"
+        map      = "data.frame"
     )
 )
 
@@ -149,6 +154,17 @@ setValidity("GOSubgraph", function(object) {
 
     if (!all(c("go_id", "gene_id") %in% colnames(object@map))) {
         return("slot 'map' must contain columns 'go_id' and 'gene_id'.")
+    }
+
+    if (!identical(names(object@parents), object@keep_ids)) {
+        return("names(parents) must match keep_ids.")
+    }
+    if (!identical(names(object@children), object@keep_ids)) {
+        return("names(children) must match keep_ids.")
+    }
+
+    if (!all(c("child", "parent") %in% colnames(object@edges))) {
+        return("slot 'edges' must contain columns 'child' and 'parent'.")
     }
 
     TRUE

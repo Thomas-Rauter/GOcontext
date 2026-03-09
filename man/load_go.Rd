@@ -4,62 +4,48 @@
 \alias{load_go}
 \title{Load a GO sub-ontology graph from \pkg{GO.db}}
 \usage{
-load_go(
-  ont = c("BP", "MF", "CC"),
-  include_obsolete = FALSE,
-  compute_depth = TRUE
-)
+load_go(ont = c("BP", "MF", "CC"), include_obsolete = FALSE)
 }
 \arguments{
 \item{ont}{\code{character(1)} GO sub-ontology to load. One of
 \code{"BP"}, \code{"MF"}, or \code{"CC"}.}
 
-\item{include_obsolete}{\code{logical(1)} If \code{TRUE}, include obsolete GO
-terms in the returned object. If \code{FALSE} (default), obsolete terms
-are excluded.}
-
-\item{compute_depth}{\code{logical(1)} If \code{TRUE} (default), compute and
-store the depth of each GO term in the returned object. Precomputing depth
-speeds up downstream operations that rely on hierarchical distance. If
-\code{FALSE}, the depth vector is left empty and may be computed later
-when required.}
+\item{include_obsolete}{\code{logical(1)} Whether obsolete GO terms
+should be included. If \code{FALSE} (default), obsolete terms are
+removed from the graph.}
 }
 \value{
-A \code{GO} S4 object representing the requested GO sub-ontology, including
-term metadata, DAG edges/adjacency, and the \pkg{GO.db} version used.
+A \code{GO} S4 object representing the requested GO sub-ontology.
+The object contains:
+\itemize{
+  \item GO term metadata
+  \item parent–child relationships defining the ontology DAG
+  \item adjacency lists for efficient graph traversal
+  \item an empty GO-to-gene mapping table to be populated with
+        \code{attach_org()}
+  \item the \pkg{GO.db} version used to construct the graph
+}
 }
 \description{
-Constructs a reproducible, in-memory representation of a single GO
-sub-ontology (BP, MF, or CC) using the Bioconductor annotation package
-\pkg{GO.db}. The returned \code{GO} object contains GO term metadata and the
-directed acyclic graph (DAG) structure required for seed expansion and
-subgraph restriction.
+Loads a single Gene Ontology (GO) sub-ontology (BP, MF, or CC) from
+the Bioconductor annotation package \pkg{GO.db} and constructs an
+in-memory directed acyclic graph (DAG) representation.
 
-The ontology snapshot is defined by the installed version of \pkg{GO.db}.
-The \pkg{GO.db} package version is recorded in the returned object for
-reproducibility.
+The returned \code{GO} object contains GO term metadata together with
+the parent–child relationships required for graph traversal and
+downstream restriction operations. The ontology snapshot corresponds
+to the installed version of \pkg{GO.db}, which is recorded in the
+returned object for reproducibility.
 }
 \details{
-Conceptual steps performed by \code{load_go()}:
-\enumerate{
-  \item Validate inputs and optionally check the installed \pkg{GO.db}
-    version.
-  \item Extract GO term identifiers and term names from \pkg{GO.db} and
-    retain only those belonging to \code{ont}.
-  \item Optionally remove obsolete terms (using the obsolete mapping when
-    available, otherwise by detecting \code{"(obsolete)"} suffixes in term
-    names).
-  \item Extract ontology edges for \code{ont} (parent-child relationships)
-    from \pkg{GO.db} and keep only edges where both endpoints are retained.
-  \item Build adjacency representations (parents/children) for DAG
-    traversal.
-  \item Return a \code{GO} object with embedded provenance, including the
-    \pkg{GO.db} version.
-}
+The ontology graph loaded by \code{load_go()} serves as the starting
+point for GO restriction workflows implemented in this package.
+Organism-specific mappings can be attached using
+\code{attach_org()}, and the graph can subsequently be restricted
+using functions such as \code{filter_mapped()} or \code{subset_go()}.
 }
 \examples{
-go_cc <- load_go(ont = "CC", compute_depth = FALSE)
+go_cc <- load_go("CC")
 class(go_cc)
-head(go_terms(go_cc)[, c("go_id", "term")])
 
 }

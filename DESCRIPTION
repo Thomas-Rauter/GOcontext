@@ -1,25 +1,26 @@
 Package: GOcontext
 Type: Package
-Title: Context-Aware GO Subgraph Construction for Enrichment
+Title: Context-Aware Restriction of the Gene Ontology for Enrichment Analysis
 Version: 0.1.0
 Authors@R: c(
     person(
-      given = "Thomas",
-      family = "Rauter",
-      email = "rauterthomas0@gmail.com",
-      role = c("aut", "cre", "fnd"),
-      comment = c(ORCID = "0009-0004-5578-3628")
+        given = "Thomas",
+        family = "Rauter",
+        email = "rauterthomas0@gmail.com",
+        role = c("aut", "cre", "fnd"),
+        comment = c(ORCID = "0009-0004-5578-3628")
     ))
 Description: GOcontext provides tools for constructing context-specific
-    subgraphs of the Gene Ontology (GO) to restrict the hypothesis
-    space prior to functional enrichment analysis. The package enables
-    curated or keyword-derived GO seed selection, graph-based expansion
-    within a GO DAG, optional semantic similarity refinement using
-    GOSemSim, and formal subgraph restriction. Resulting subgraphs can
-    be used to filter TERM2GENE mappings, gene set collections, or
-    annotation tables before statistical testing. This approach reduces
-    multiple testing burden in a principled manner while preserving
-    ontology structure and reproducibility.
+    subgraphs of the Gene Ontology (GO) prior to functional enrichment
+    analysis. The package allows users to load a GO ontology, attach
+    organism-specific GO annotations, restrict the ontology to mapped
+    terms, and interactively browse and exclude branches of the GO
+    hierarchy. The resulting GO subgraph can be exported as TERM2GENE
+    and TERM2NAME tables for enrichment workflows such as
+    clusterProfiler::enricher(). This approach reduces the number of
+    tested GO terms while preserving the hierarchical structure of the
+    ontology and ensuring reproducible restriction of the hypothesis
+    space.
 License: MIT + file LICENSE
 URL: https://thomas-rauter.github.io/GOcontext/,
     https://github.com/Thomas-Rauter/GOcontext
@@ -36,17 +37,14 @@ Imports:
     methods,
     stats
 Suggests:
-    GOSemSim,
     org.Hs.eg.db,
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
     BiocStyle,
-    pkgdown,
-    cluster
+    pkgdown
 VignetteBuilder: knitr
 biocViews:
-    KEGG,
     GO,
     GeneSetEnrichment,
     Annotation,
