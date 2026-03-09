@@ -15,7 +15,7 @@
 #' }
 #'
 #' @export
-browse_go_tree <- function(go) {
+browse_go <- function(go) {
     .assert_go_like(go = go)
 
     children <- go@children

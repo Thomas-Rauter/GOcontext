@@ -39,18 +39,9 @@ reference:
     desc: This section contains the documentation for all functions available 
           to the user in the GOcontext R package.
     contents:
-      - build_subgraph
-      - expand_seed
-      - filter_genesets
-      - filter_term2gene
-      - get_seed
-      - go_ids
-      - go_labels
-      - go_keep_ids
-      - go_terms
-      - list_seeds
+      - as_term2gene
+      - as_term2name
+      - browse_go
       - load_go
-      - seed_from_keywords
-      - summarize_terms
 
 

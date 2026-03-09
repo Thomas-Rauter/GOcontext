@@ -20,6 +20,7 @@ attach_org <- function(
         OrgDb,
         keytype = "ENTREZID"
 ) {
+    keytype <- trimws(keytype)
     .attach_org_validate_inputs(
         go      = go,
         OrgDb   = OrgDb,
@@ -83,7 +84,6 @@ attach_org <- function(
         )
     }
 
-    keytype <- trimws(keytype)
     if (!nzchar(keytype)) {
         rlang::abort(
             message = "`keytype` must not be empty.",

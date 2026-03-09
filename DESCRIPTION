@@ -37,7 +37,7 @@ Imports:
     methods,
     stats
 Suggests:
-    org.Hs.eg.db,
+    org.EcK12.eg.db,
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,

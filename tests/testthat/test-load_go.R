@@ -5,78 +5,111 @@
     testthat::expect_identical(obj@ontology, ont)
     testthat::expect_identical(obj@version, ver)
 
-    testthat::expect_true(is.data.frame(obj@terms))
-    testthat::expect_true(nrow(obj@terms) > 0L)
+    testthat::expect_true(base::is.character(obj@ids))
+    testthat::expect_true(base::is.data.frame(obj@terms))
+    testthat::expect_true(base::nrow(obj@terms) > 0L)
 
     need <- c("go_id", "term", "ontology", "obsolete")
-    testthat::expect_true(all(need %in% names(obj@terms)))
-    testthat::expect_true(all(obj@terms$ontology == ont))
+    testthat::expect_true(base::all(need %in% base::names(obj@terms)))
+    testthat::expect_true(base::all(obj@terms$ontology == ont))
+    testthat::expect_identical(obj@ids, obj@terms$go_id)
 
-    testthat::expect_true(is.data.frame(obj@edges))
-    testthat::expect_true(is.list(obj@parents))
-    testthat::expect_true(is.list(obj@children))
-    testthat::expect_true(!is.null(names(obj@parents)))
-    testthat::expect_true(!is.null(names(obj@children)))
+    testthat::expect_true(base::is.data.frame(obj@edges))
+    testthat::expect_true(base::all(c("child", "parent") %in%
+                                        base::names(obj@edges)))
 
-    if (nrow(obj@edges) > 0L) {
+    testthat::expect_true(base::is.list(obj@parents))
+    testthat::expect_true(base::is.list(obj@children))
+    testthat::expect_false(base::is.null(base::names(obj@parents)))
+    testthat::expect_false(base::is.null(base::names(obj@children)))
+    testthat::expect_identical(base::names(obj@parents), obj@ids)
+    testthat::expect_identical(base::names(obj@children), obj@ids)
+
+    testthat::expect_true(base::is.data.frame(obj@map))
+    testthat::expect_true(base::all(c("go_id", "gene_id") %in%
+                                        base::names(obj@map)))
+    testthat::expect_identical(base::nrow(obj@map), 0L)
+
+    if (base::nrow(obj@edges) > 0L) {
         keep <- obj@terms$go_id
-        testthat::expect_true(all(obj@edges$child %in% keep))
-        testthat::expect_true(all(obj@edges$parent %in% keep))
+        testthat::expect_true(base::all(obj@edges$child %in% keep))
+        testthat::expect_true(base::all(obj@edges$parent %in% keep))
     }
 }
 
-testthat::test_that("load_go() default BP is coherent and compute_depthd", {
+testthat::test_that("GOcontext::load_go loads BP coherently by default", {
     testthat::skip_if_not_installed("GO.db")
 
-    ver <- as.character(utils::packageVersion("GO.db"))
+    ver <- base::as.character(utils::packageVersion("GO.db"))
     obj <- GOcontext::load_go(ont = "BP")
 
     .test_go_invariants(obj, "BP", ver)
-
-    testthat::expect_true(all(!obj@terms$obsolete))
-
-    testthat::expect_true(is.integer(obj@depth))
-    testthat::expect_true(length(obj@depth) == nrow(obj@terms))
+    testthat::expect_true(base::all(!obj@terms$obsolete))
 })
 
-testthat::test_that("load_go() compute_depth=FALSE yields empty depth", {
-    testthat::skip_if_not_installed("GO.db")
+testthat::test_that(
+    "GOcontext::load_go include_obsolete=TRUE is accepted",
+    {
+        testthat::skip_if_not_installed("GO.db")
 
-    ver <- as.character(utils::packageVersion("GO.db"))
-    obj <- GOcontext::load_go(ont = "BP", compute_depth = FALSE)
-
-    .test_go_invariants(obj, "BP", ver)
-
-    testthat::expect_true(is.integer(obj@depth))
-    testthat::expect_identical(length(obj@depth), 0L)
-})
-
-testthat::test_that("load_go() include_obsolete=TRUE allows obsolete terms", {
-    testthat::skip_if_not_installed("GO.db")
-
-    ver <- as.character(utils::packageVersion("GO.db"))
-    obj <- GOcontext::load_go(
-        ont = "CC",
-        include_obsolete = TRUE,
-        compute_depth = FALSE
+        ver <- base::as.character(utils::packageVersion("GO.db"))
+        obj <- GOcontext::load_go(
+            ont = "CC",
+            include_obsolete = TRUE
         )
 
-    .test_go_invariants(obj, "CC", ver)
+        .test_go_invariants(obj, "CC", ver)
 
-    testthat::expect_true(any(obj@terms$obsolete) ||
-                              all(!obj@terms$obsolete))
-})
+        testthat::expect_true(
+            base::all(c(TRUE, FALSE) %in% unique(obj@terms$obsolete)) ||
+                base::all(!obj@terms$obsolete) ||
+                base::all(obj@terms$obsolete)
+        )
+    }
+)
 
-testthat::test_that("load_go() version mismatch errors", {
-    testthat::skip_if_not_installed("GO.db")
-
-    testthat::expect_error(
-        GOcontext::load_go(
-            ont = "CC",
-            version = "0.0.0",
-            compute_depth = FALSE
+testthat::test_that(
+    "GOcontext::load_go rejects invalid include_obsolete values",
+    {
+        testthat::expect_error(
+            GOcontext::load_go(
+                ont = "CC",
+                include_obsolete = NA
             ),
-        regexp = "does not match requested version",
-        fixed = FALSE
-    )
-})
+            regexp = "`include_obsolete` must be a logical\\(1\\)"
+        )
+
+        testthat::expect_error(
+            GOcontext::load_go(
+                ont = "CC",
+                include_obsolete = "TRUE"
+            ),
+            regexp = "`include_obsolete` must be a logical\\(1\\)"
+        )
+
+        testthat::expect_error(
+            GOcontext::load_go(
+                ont = "CC",
+                include_obsolete = c(TRUE, FALSE)
+            ),
+            regexp = "`include_obsolete` must be a logical\\(1\\)"
+        )
+    }
+)
+
+testthat::test_that(
+    "GOcontext::load_go loads each ontology as a GO object",
+    {
+        testthat::skip_if_not_installed("GO.db")
+
+        ver <- base::as.character(utils::packageVersion("GO.db"))
+
+        bp <- GOcontext::load_go("BP")
+        mf <- GOcontext::load_go("MF")
+        cc <- GOcontext::load_go("CC")
+
+        .test_go_invariants(bp, "BP", ver)
+        .test_go_invariants(mf, "MF", ver)
+        .test_go_invariants(cc, "CC", ver)
+    }
+)
