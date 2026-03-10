@@ -9,20 +9,26 @@ output: github_document
 
 <div style="display: flex; align-items: flex-start; gap: 20px;">
 
-<img src="man/figures/GOcontext_hex.png" width="180"/>
+<img src="man/figures/GOcontext_hex.png" width="200"/>
 
 <div>
 
 Context-aware restriction of the Gene Ontology (GO) hypothesis space for
 enrichment analysis.
 
-`GOcontext` constructs **context-specific GO subgraphs** to restrict the set of
-GO terms tested in enrichment analysis. By reducing the number of tested terms
-while preserving the GO graph structure, the package aims to decrease multiple
-testing burden while maintaining a transparent and reproducible GO universe.
+</div>
+</div>
 
-</div>
-</div>
+`GOcontext` constructs **context-specific GO subgraphs** to restrict the set of
+GO terms tested in enrichment analysis. Starting from the Gene Ontology graph
+distributed in `GO.db`, organism-specific GO-to-gene mappings can be attached
+from an `OrgDb`, and the ontology can then be restricted to terms relevant to
+the current biological context.
+
+By reducing the number of tested GO terms while preserving the underlying GO
+graph structure, `GOcontext` aims to decrease the multiple testing burden while
+maintaining a transparent and reproducible GO universe for enrichment
+analysis.
 
 See the full documentation at the
 [GOcontext website](https://thomas-rauter.github.io/GOcontext/).
@@ -64,7 +70,6 @@ Below is a minimal, conceptual workflow:
 
 ```{r quickstart, eval = FALSE}
 library(GOcontext)
-library(GO.db)
 library(org.EcK12.eg.db)
 
 # 1) Load the GO DAG for one ontology

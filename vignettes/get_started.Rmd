@@ -1,0 +1,205 @@
+---
+title: "Getting Started with GOcontext"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
+    number_sections: false
+vignette: >
+  %\VignetteIndexEntry{Getting Started with GOcontext}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+## Overview
+
+`GOcontext` provides tools for constructing **restricted Gene Ontology
+(GO) graphs** prior to enrichment analysis.
+
+In standard GO enrichment workflows, all GO terms within an ontology
+(Biological Process, Molecular Function, or Cellular Component) are
+tested simultaneously. However, for many biological questions, large
+parts of the ontology are irrelevant to the experimental system under
+study. Testing these terms unnecessarily increases the number of
+hypotheses and therefore the multiple testing burden.
+
+`GOcontext` addresses this by enabling users to construct
+**context-specific GO subgraphs** before performing enrichment
+analysis. The package:
+
+- loads the GO structure from `GO.db`
+- attaches organism-specific GO annotations from an `OrgDb`
+- restricts the ontology graph to mapped terms or selected branches
+- exports the resulting mappings for enrichment tools
+
+By reducing the number of tested GO terms while preserving the
+underlying directed acyclic graph (DAG) structure, enrichment analyses
+can focus on biologically relevant parts of the ontology while
+maintaining a transparent and reproducible GO universe.
+
+The typical workflow is:
+
+load_go() → attach_org() → filter_mapped() → subset_go() → enrichment
+
+## Load packages
+
+```{r Load packages}
+suppressPackageStartupMessages({
+    library(GOcontext)
+    library(knitr)
+    library(org.EcK12.eg.db)
+})
+```
+
+## 1. Load a GO ontology
+
+`GOcontext` loads GO directly from the Bioconductor package `GO.db`.
+Only a single ontology (BP, MF, or CC) is loaded at a time.
+
+```{r load_go}
+go_bp <- GOcontext::load_go("BP")
+```
+
+The returned object contains:
+
+- GO term metadata
+- parent–child edges defining the GO DAG
+- adjacency lists for graph traversal
+- the GO.db version used to construct the graph
+
+## 2. Attach organism annotations
+
+GO enrichment requires mappings between GO terms and genes. These are
+obtained from an organism annotation package (`OrgDb`).
+
+```{r attach_org}
+go_bp <- GOcontext::attach_org(
+    go = go_bp,
+    OrgDb = org.EcK12.eg.db
+)
+```
+
+This attaches a GO-to-gene mapping table to the GO graph object.
+
+## 3. Restrict the graph to mapped terms
+
+Many GO terms have no gene annotations for a given organism. These
+terms cannot contribute to enrichment results and can therefore be
+removed before further analysis.
+
+```{r filter_mapped}
+go_bp_mapped <- GOcontext::filter_mapped(go_bp)
+```
+
+The returned object is a `GOSubgraph` containing only terms that have
+at least one gene mapping.
+
+This step often reduces the ontology size substantially.
+
+## 4. Restrict the graph to selected branches
+
+`GOcontext` allows restricting the ontology graph to specific regions.
+
+Two modes are supported:
+
+- **keep** – retain selected terms and all their descendants
+- **exclude** – remove selected terms and their descendants
+
+Example: restrict the graph to the descendants of a particular GO
+term.
+
+```{r subset_go}
+go_sub <- GOcontext::subset_go(
+    go = go_bp_mapped,
+    ids = "GO:0006740",
+    mode = "keep"
+)
+```
+
+The returned `GOSubgraph` represents the restricted GO graph.
+
+The object contains:
+
+- retained GO terms
+- removed GO terms
+- induced parent–child edges
+- updated adjacency lists
+- the attached GO-to-gene mapping
+
+## 5. Export mappings for enrichment
+
+After restricting the graph, GO annotations can be exported in formats
+commonly used by enrichment tools.
+
+### TERM2GENE mapping
+
+```{r as_term2gene}
+term2gene <- GOcontext::as_term2gene(go_sub)
+head(term2gene)
+```
+
+### TERM2NAME mapping
+
+```{r as_term2name}
+term2name <- GOcontext::as_term2name(go_sub)
+head(term2name)
+```
+
+These tables can be supplied directly to
+`clusterProfiler::enricher()`.
+
+## 6. Run enrichment analysis
+
+Example workflow with `clusterProfiler`:
+
+```{r enrichment analysis, eval = FALSE}
+library(clusterProfiler)
+
+enrichment_results <- clusterProfiler::enricher(
+    gene      = gene_list,
+    TERM2GENE = term2gene,
+    TERM2NAME = term2name
+)
+```
+
+Because the GO graph was restricted beforehand, enrichment is
+performed on a smaller and biologically focused hypothesis space.
+
+## Interactive exploration
+
+`GOcontext` also provides a console browser for exploring the GO
+hierarchy interactively.
+
+```{r browse go, eval = FALSE}
+res <- GOcontext::browse_go(go_bp)
+```
+ 
+
+The browser allows navigation through the GO DAG and selection of
+terms of interest. The selected terms can then be used as input for
+`subset_go()`.
+
+## Summary
+
+`GOcontext` enables reproducible construction of restricted GO graphs
+prior to enrichment analysis.
+
+A typical workflow consists of:
+
+1. Loading GO using `load_go()`
+2. Attaching organism annotations with `attach_org()`
+3. Restricting the ontology to mapped terms using `filter_mapped()`
+4. Restricting the graph structure with `subset_go()`
+5. Exporting GO mappings with `as_term2gene()` and `as_term2name()`
+6. Running enrichment analysis
+
+By explicitly defining the tested GO universe before enrichment,
+`GOcontext` reduces the multiple testing burden while preserving the
+ontology structure and ensuring transparent analysis workflows.
+
+```{r session info}
+sessionInfo()
+```

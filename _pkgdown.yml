@@ -25,10 +25,8 @@ navbar:
     articles:
       text: "Articles"
       menu:
-        - text: "Motivation and Approach"
-          href: articles/motivation_and_approach.html
-        - text: "expand_seed() parameters"
-          href: articles/expand_seed_params.html
+        - text: "Motivation"
+          href: articles/motivation.html
 
     news:
       text: "News"
@@ -41,7 +39,10 @@ reference:
     contents:
       - as_term2gene
       - as_term2name
+      - attach_org
       - browse_go
+      - filter_mapped
       - load_go
+      - subset_go
 
 

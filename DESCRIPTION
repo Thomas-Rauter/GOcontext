@@ -35,14 +35,15 @@ Imports:
     AnnotationDbi,
     rlang,
     methods,
-    stats
+    utils
 Suggests:
     org.EcK12.eg.db,
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
     BiocStyle,
-    pkgdown
+    pkgdown,
+    stats
 VignetteBuilder: knitr
 biocViews:
     GO,

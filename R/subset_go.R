@@ -162,7 +162,7 @@ subset_go <- function(
                 "Some `ids` are not present in this graph ",
                 "(showing up to 10): %s"
             ),
-            paste(head(bad, 10L), collapse = ", ")
+            paste(utils::head(bad, 10L), collapse = ", ")
         )
         rlang::abort(message = msg, arg = "ids")
     }
