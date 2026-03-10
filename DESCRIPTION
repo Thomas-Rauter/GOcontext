@@ -13,14 +13,15 @@ Authors@R: c(
 Description: GOcontext provides tools for constructing context-specific
     subgraphs of the Gene Ontology (GO) prior to functional enrichment
     analysis. The package allows users to load a GO ontology, attach
-    organism-specific GO annotations, restrict the ontology to mapped
-    terms, and interactively browse and exclude branches of the GO
-    hierarchy. The resulting GO subgraph can be exported as TERM2GENE
-    and TERM2NAME tables for enrichment workflows such as
-    clusterProfiler::enricher(). This approach reduces the number of
-    tested GO terms while preserving the hierarchical structure of the
-    ontology and ensuring reproducible restriction of the hypothesis
-    space.
+    organism-specific GO annotations, and restrict the ontology to
+    biologically relevant terms. Branches of the GO hierarchy can be
+    interactively explored and selectively retained or excluded to define
+    a focused hypothesis space. The resulting GO subgraph can be exported
+    as TERM2GENE and TERM2NAME tables for enrichment workflows such as
+    clusterProfiler::enricher(). By restricting the ontology DAG itself
+    before downstream analysis, GOcontext enables reproducible curation
+    of the tested GO term universe while preserving the hierarchical
+    structure of the ontology.
 License: MIT + file LICENSE
 URL: https://thomas-rauter.github.io/GOcontext/,
     https://github.com/Thomas-Rauter/GOcontext

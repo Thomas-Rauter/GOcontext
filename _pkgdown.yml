@@ -42,6 +42,7 @@ reference:
       - attach_org
       - browse_go
       - filter_mapped
+      - harmonize_gene_ids
       - load_go
       - subset_go
 
