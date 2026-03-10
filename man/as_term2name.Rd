@@ -4,10 +4,14 @@
 \alias{as_term2name}
 \title{Export GO term names as TERM2NAME}
 \usage{
-as_term2name(go)
+as_term2name(go, minGSSize = NULL, maxGSSize = NULL)
 }
 \arguments{
 \item{go}{A \code{GO} or \code{GOSubgraph} object.}
+
+\item{minGSSize}{Minimum number of genes per GO term.}
+
+\item{maxGSSize}{Maximum number of genes per GO term.}
 }
 \value{
 A \code{data.frame} with columns \code{term} and \code{name}.
@@ -18,4 +22,7 @@ Returns a two-column \code{data.frame} suitable for
 
 The returned table is restricted to GO terms present in the current
 \code{GO} or \code{GOSubgraph} object.
+
+Optional size filtering can be applied based on the number of mapped
+genes per GO term.
 }

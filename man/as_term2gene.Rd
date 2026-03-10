@@ -4,20 +4,29 @@
 \alias{as_term2gene}
 \title{Export GO mappings as TERM2GENE}
 \usage{
-as_term2gene(go)
+as_term2gene(go, minGSSize = 10L, maxGSSize = 500L)
 }
 \arguments{
 \item{go}{A \code{GO} or \code{GOSubgraph} object with an attached
 organism mapping.}
+
+\item{minGSSize}{Minimum number of genes per GO term.}
+
+\item{maxGSSize}{Maximum number of genes per GO term.}
 }
 \value{
 A \code{data.frame} with columns \code{term} and \code{gene}.
 }
 \description{
 Returns a two-column \code{data.frame} suitable for
-\code{clusterProfiler::enricher(TERM2GENE = ...)}.
+\code{clusterProfiler::enricher(TERM2GENE = ...)} or similar
+enrichment tools.
 
 Requires an organism mapping attached via \code{attach_org()}.
 The returned table is restricted to GO terms present in the current
 \code{GO} or \code{GOSubgraph} object.
+
+Optional size filtering can be applied to restrict the number of genes
+per GO term, similar to the \code{minGSSize} and \code{maxGSSize}
+arguments used by \code{clusterProfiler}.
 }

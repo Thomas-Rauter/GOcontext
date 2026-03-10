@@ -7,17 +7,51 @@
 #' The returned table is restricted to GO terms present in the current
 #' \code{GO} or \code{GOSubgraph} object.
 #'
+#' Optional size filtering can be applied based on the number of mapped
+#' genes per GO term.
+#'
 #' @param go A \code{GO} or \code{GOSubgraph} object.
+#' @param minGSSize Minimum number of genes per GO term.
+#' @param maxGSSize Maximum number of genes per GO term.
 #'
 #' @return A \code{data.frame} with columns \code{term} and \code{name}.
 #'
 #' @export
-as_term2name <- function(go) {
-    .assert_go_like(go = go)
+as_term2name <- function(
+        go,
+        minGSSize = NULL,
+        maxGSSize = NULL
+) {
+    use_size_filter <- !is.null(minGSSize) || !is.null(maxGSSize)
+    .assert_go_like(
+        go          = go,
+        require_map = use_size_filter
+    )
+
     terms <- .extract_term_metadata(go = go)
+
+    if (!use_size_filter) {
+        return(data.frame(
+            term             = terms$go_id,
+            name             = terms$term,
+            stringsAsFactors = FALSE
+        ))
+    }
+
+    .validate_gs_size(
+        minGSSize = minGSSize,
+        maxGSSize = maxGSSize
+    )
+    keep_terms <- .filter_terms_by_size(
+        go        = go,
+        minGSSize = minGSSize,
+        maxGSSize = maxGSSize
+    )
+    terms <- terms[terms$go_id %in% keep_terms, , drop = FALSE]
+
     data.frame(
-        term = terms$go_id,
-        name = terms$term,
+        term             = terms$go_id,
+        name             = terms$term,
         stringsAsFactors = FALSE
     )
 }

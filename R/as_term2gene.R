@@ -2,27 +2,60 @@
 #'
 #' @description
 #' Returns a two-column \code{data.frame} suitable for
-#' \code{clusterProfiler::enricher(TERM2GENE = ...)}.
+#' \code{clusterProfiler::enricher(TERM2GENE = ...)} or similar
+#' enrichment tools.
 #'
 #' Requires an organism mapping attached via \code{attach_org()}.
 #' The returned table is restricted to GO terms present in the current
 #' \code{GO} or \code{GOSubgraph} object.
 #'
+#' Optional size filtering can be applied to restrict the number of genes
+#' per GO term, similar to the \code{minGSSize} and \code{maxGSSize}
+#' arguments used by \code{clusterProfiler}.
+#'
 #' @param go A \code{GO} or \code{GOSubgraph} object with an attached
 #'   organism mapping.
+#' @param minGSSize Minimum number of genes per GO term.
+#' @param maxGSSize Maximum number of genes per GO term.
 #'
 #' @return A \code{data.frame} with columns \code{term} and \code{gene}.
 #'
 #' @export
-as_term2gene <- function(go) {
+as_term2gene <- function(
+        go,
+        minGSSize = 10L,
+        maxGSSize = 500L
+) {
     .assert_go_like(
         go          = go,
         require_map = TRUE
     )
+    .validate_gs_size(
+        minGSSize = minGSSize,
+        maxGSSize = maxGSSize
+    )
+
     map <- .restrict_go_map(
         map = go@map,
         go  = go
     )
+
+    if (!nrow(map)) {
+        return(data.frame(
+            term             = character(0),
+            gene             = character(0),
+            stringsAsFactors = FALSE
+        ))
+    }
+
+    keep_terms <- .filter_terms_by_size(
+        go        = go,
+        minGSSize = minGSSize,
+        maxGSSize = maxGSSize
+    )
+
+    map <- map[map$go_id %in% keep_terms, , drop = FALSE]
+
     data.frame(
         term             = map$go_id,
         gene             = map$gene_id,

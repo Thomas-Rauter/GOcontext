@@ -6,7 +6,7 @@ GOcontext
 
 <div style="display: flex; align-items: flex-start; gap: 20px;">
 
-<img src="man/figures/GOcontext_hex.png" width="200"/>
+<img src="man/figures/GOcontext_hex.png" width="70"/>
 
 <div>
 
@@ -46,8 +46,6 @@ website](https://thomas-rauter.github.io/GOcontext/).
 <!-- BiocManager::install("GOcontext") -->
 
 <!-- ``` -->
-
-### Development version
 
 ``` r
 if (!requireNamespace("remotes", quietly = TRUE)) {

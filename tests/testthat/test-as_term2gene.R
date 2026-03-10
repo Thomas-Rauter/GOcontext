@@ -1,5 +1,5 @@
 testthat::test_that(
-    "GOcontext::as_term2gene returns a TERM2GENE table for GO",
+    "GOcontext::as_term2gene returns a size-filtered TERM2GENE table for GO",
     {
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
@@ -27,11 +27,18 @@ testthat::test_that(
         testthat::expect_true(
             base::all(out$gene %in% .go_cc_ecoli@map$gene_id)
         )
+
+        term_sizes <- table(.go_cc_ecoli@map$go_id)
+        keep_terms <- names(term_sizes)[
+            term_sizes >= 10L & term_sizes <= 500L
+        ]
+
+        testthat::expect_true(base::all(out$term %in% keep_terms))
     }
 )
 
 testthat::test_that(
-    "GOcontext::as_term2gene returns a TERM2GENE table for GOSubgraph",
+    "GOcontext::as_term2gene returns a size-filtered TERM2GENE table for GOSubgraph",
     {
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
@@ -43,7 +50,11 @@ testthat::test_that(
             mode = "keep"
         )
 
-        out <- GOcontext::as_term2gene(go_sub)
+        out <- GOcontext::as_term2gene(
+            go_sub,
+            minGSSize = 1L,
+            maxGSSize = 500L
+        )
 
         testthat::expect_true(base::is.data.frame(out))
         testthat::expect_identical(
@@ -58,6 +69,64 @@ testthat::test_that(
         )
         testthat::expect_true(
             base::all(out$term %in% go_sub@map$go_id)
+        )
+
+        term_sizes <- table(
+            go_sub@map$go_id[go_sub@map$go_id %in% go_sub@terms$go_id]
+        )
+        keep_terms <- names(term_sizes)[
+            term_sizes >= 1L & term_sizes <= 500L
+        ]
+
+        testthat::expect_true(base::all(out$term %in% keep_terms))
+    }
+)
+
+testthat::test_that(
+    "GOcontext::as_term2gene respects custom gene set size thresholds",
+    {
+        testthat::skip_if_not_installed("org.EcK12.eg.db")
+
+        out <- GOcontext::as_term2gene(
+            .go_cc_ecoli,
+            minGSSize = 1L,
+            maxGSSize = 5L
+        )
+
+        testthat::expect_true(base::is.data.frame(out))
+        testthat::expect_identical(
+            base::names(out),
+            c("term", "gene")
+        )
+
+        if (base::nrow(out) > 0L) {
+            term_sizes <- table(out$term)
+            testthat::expect_true(base::all(term_sizes >= 1L))
+            testthat::expect_true(base::all(term_sizes <= 5L))
+        }
+    }
+)
+
+testthat::test_that(
+    "GOcontext::as_term2gene rejects invalid size thresholds",
+    {
+        testthat::skip_if_not_installed("org.EcK12.eg.db")
+
+        testthat::expect_error(
+            GOcontext::as_term2gene(
+                .go_cc_ecoli,
+                minGSSize = 0
+            ),
+            regexp = "`minGSSize` must be a positive integer"
+        )
+
+        testthat::expect_error(
+            GOcontext::as_term2gene(
+                .go_cc_ecoli,
+                minGSSize = 10L,
+                maxGSSize = 5L
+            ),
+            regexp = "`maxGSSize` must be >= `minGSSize`"
         )
     }
 )
@@ -97,6 +166,8 @@ testthat::test_that(
             add = TRUE
         )
 
+        clean_out <- GOcontext::as_term2gene(go)
+
         extra_na_go <- old_map[1, , drop = FALSE]
         extra_na_go$go_id <- NA_character_
 
@@ -117,7 +188,7 @@ testthat::test_that(
         testthat::expect_false(base::anyNA(out$term))
         testthat::expect_false(base::anyNA(out$gene))
         testthat::expect_identical(base::anyDuplicated(out), 0L)
-        testthat::expect_identical(base::nrow(out), base::nrow(old_map))
+        testthat::expect_identical(out, clean_out)
     }
 )
 

@@ -66,6 +66,154 @@ testthat::test_that(
 )
 
 testthat::test_that(
+    "GOcontext::as_term2name supports lower-only size filtering",
+    {
+        testthat::skip_if_not_installed("org.EcK12.eg.db")
+
+        out <- GOcontext::as_term2name(
+            .go_cc_ecoli,
+            minGSSize = 10L
+        )
+
+        testthat::expect_true(base::is.data.frame(out))
+        testthat::expect_identical(
+            base::names(out),
+            c("term", "name")
+        )
+        testthat::expect_true(base::nrow(out) > 0L)
+
+        term_sizes <- table(.go_cc_ecoli@map$go_id)
+        keep_terms <- base::names(term_sizes)[term_sizes >= 10L]
+
+        expected <- .go_cc_ecoli@terms[
+            .go_cc_ecoli@terms$go_id %in% keep_terms,
+            ,
+            drop = FALSE
+        ]
+
+        testthat::expect_identical(out$term, expected$go_id)
+        testthat::expect_identical(out$name, expected$term)
+    }
+)
+
+testthat::test_that(
+    "GOcontext::as_term2name supports upper-only size filtering",
+    {
+        testthat::skip_if_not_installed("org.EcK12.eg.db")
+
+        out <- GOcontext::as_term2name(
+            .go_cc_ecoli,
+            maxGSSize = 500L
+        )
+
+        testthat::expect_true(base::is.data.frame(out))
+        testthat::expect_identical(
+            base::names(out),
+            c("term", "name")
+        )
+
+        term_sizes <- table(.go_cc_ecoli@map$go_id)
+        keep_terms <- base::names(term_sizes)[term_sizes <= 500L]
+
+        expected <- .go_cc_ecoli@terms[
+            .go_cc_ecoli@terms$go_id %in% keep_terms,
+            ,
+            drop = FALSE
+        ]
+
+        testthat::expect_identical(out$term, expected$go_id)
+        testthat::expect_identical(out$name, expected$term)
+    }
+)
+
+testthat::test_that(
+    "GOcontext::as_term2name supports two-sided size filtering",
+    {
+        testthat::skip_if_not_installed("org.EcK12.eg.db")
+
+        out <- GOcontext::as_term2name(
+            .go_cc_ecoli,
+            minGSSize = 10L,
+            maxGSSize = 500L
+        )
+
+        testthat::expect_true(base::is.data.frame(out))
+        testthat::expect_identical(
+            base::names(out),
+            c("term", "name")
+        )
+        testthat::expect_true(base::nrow(out) > 0L)
+
+        term_sizes <- table(.go_cc_ecoli@map$go_id)
+        keep_terms <- base::names(term_sizes)[
+            term_sizes >= 10L & term_sizes <= 500L
+        ]
+
+        expected <- .go_cc_ecoli@terms[
+            .go_cc_ecoli@terms$go_id %in% keep_terms,
+            ,
+            drop = FALSE
+        ]
+
+        testthat::expect_identical(out$term, expected$go_id)
+        testthat::expect_identical(out$name, expected$term)
+    }
+)
+
+testthat::test_that(
+    "GOcontext::as_term2name rejects size filtering without mapping",
+    {
+        testthat::expect_error(
+            GOcontext::as_term2name(
+                .go_cc,
+                minGSSize = 10L
+            ),
+            regexp = "must have a non-empty attached organism mapping"
+        )
+
+        testthat::expect_error(
+            GOcontext::as_term2name(
+                .go_cc,
+                maxGSSize = 500L
+            ),
+            regexp = "must have a non-empty attached organism mapping"
+        )
+    }
+)
+
+testthat::test_that(
+    "GOcontext::as_term2name rejects invalid size thresholds",
+    {
+        testthat::skip_if_not_installed("org.EcK12.eg.db")
+
+        testthat::expect_error(
+            GOcontext::as_term2name(
+                .go_cc_ecoli,
+                minGSSize = 0
+            ),
+            regexp = "`minGSSize` must be a positive integer or NULL"
+        )
+
+        testthat::expect_error(
+            GOcontext::as_term2name(
+                .go_cc_ecoli,
+                maxGSSize = 0
+            ),
+            regexp = "`maxGSSize` must be a positive integer or NULL"
+        )
+
+        testthat::expect_error(
+            GOcontext::as_term2name(
+                .go_cc_ecoli,
+                minGSSize = 10L,
+                maxGSSize = 5L
+            ),
+            regexp = "`maxGSSize` must be >= `minGSSize`"
+        )
+    }
+)
+
+testthat::test_that(
     "GOcontext::as_term2name rejects invalid input objects",
     {
         testthat::expect_error(

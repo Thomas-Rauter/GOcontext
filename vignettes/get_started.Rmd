@@ -137,14 +137,22 @@ commonly used by enrichment tools.
 ### TERM2GENE mapping
 
 ```{r as_term2gene}
-term2gene <- GOcontext::as_term2gene(go_sub)
+term2gene <- GOcontext::as_term2gene(
+    go        = go_sub,
+    minGSSize = 10,
+    maxGSSize = 500
+)
 head(term2gene)
 ```
 
 ### TERM2NAME mapping
 
 ```{r as_term2name}
-term2name <- GOcontext::as_term2name(go_sub)
+term2name <- GOcontext::as_term2name(
+    go        = go_sub,
+    minGSSize = NULL,
+    maxGSSize = NULL
+)
 head(term2name)
 ```
 

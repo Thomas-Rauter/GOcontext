@@ -9,7 +9,7 @@ output: github_document
 
 <div style="display: flex; align-items: flex-start; gap: 20px;">
 
-<img src="man/figures/GOcontext_hex.png" width="200"/>
+<img src="man/figures/GOcontext_hex.png" width="70"/>
 
 <div>
 
@@ -45,8 +45,6 @@ See the full documentation at the
 <!-- } -->
 <!-- BiocManager::install("GOcontext") -->
 <!-- ``` -->
-
-### Development version
 
 ```{r install from GitHub, eval = FALSE}
 if (!requireNamespace("remotes", quietly = TRUE)) {

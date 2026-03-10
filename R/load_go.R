@@ -18,6 +18,9 @@
 #'   should be included. If \code{FALSE} (default), obsolete terms are
 #'   removed from the graph.
 #'
+#' @param version Optional \code{character(1)} specifying the expected
+#'   \code{GO.db} version. If provided, the installed version must match.
+#'
 #' @return
 #' A \code{GO} S4 object representing the requested GO sub-ontology.
 #' The object contains:
@@ -44,7 +47,8 @@
 #' @export
 load_go <- function(
         ont              = c("BP", "MF", "CC"),
-        include_obsolete = FALSE
+        include_obsolete = FALSE,
+        version          = NULL
 ) {
     ont <- match.arg(ont)
     if (!is.logical(include_obsolete)
@@ -55,6 +59,7 @@ load_go <- function(
             arg = "include_obsolete"
         )
     }
+    .validate_go_version(version)
 
     parent_map <- .get_parent_map(ont)
     term_df <- .get_go_term_df(
@@ -94,6 +99,72 @@ load_go <- function(
 # Level 1 function definitions -------------------------------------------------
 
 
+#' Validate requested GO.db version
+#'
+#' @description
+#' Validates the optional \code{version} argument used when loading a GO
+#' ontology. If a version is supplied, it must match the installed
+#' \code{GO.db} version. This allows analysis pipelines to explicitly
+#' assert the ontology version used during graph construction.
+#'
+#' @param version Optional \code{character(1)} specifying the expected
+#'   \code{GO.db} version. If \code{NULL}, no validation is performed.
+#'
+#' @return Invisibly \code{TRUE} if validation succeeds.
+#'
+#' @noRd
+.validate_go_version <- function(version) {
+    if (is.null(version)) {
+        return(invisible(TRUE))
+    }
+
+    if (!is.character(version) ||
+        length(version) != 1L ||
+        is.na(version)) {
+        rlang::abort(
+            "`version` must be NULL or a character(1).",
+            arg = "version"
+        )
+    }
+
+    installed_version <- as.character(utils::packageVersion("GO.db"))
+
+    if (!identical(version, installed_version)) {
+        rlang::abort(
+            sprintf(
+                paste(
+                    "Installed GO.db version (%s) does not match",
+                    "the requested version (%s)."
+                ),
+                installed_version,
+                version
+            ),
+            arg = "version"
+        )
+    }
+
+    invisible(TRUE)
+}
+
+
+#' Retrieve GO parent relationships for an ontology
+#'
+#' @description
+#' Extracts the GO parent mapping for the requested ontology from the
+#' \code{GO.db} package. The mapping defines the directed edges of the
+#' Gene Ontology DAG, where each GO term is associated with its direct
+#' parent terms.
+#'
+#' The raw mapping retrieved from \code{GO.db} is converted to a standard
+#' list format and normalized using \code{.normalize_parent_map()} so that
+#' all parent identifiers are represented as character vectors.
+#'
+#' @param ont Ontology identifier: one of \code{"BP"}, \code{"MF"}, or
+#'   \code{"CC"}.
+#'
+#' @return A named \code{list} where each element corresponds to a GO ID
+#'   and contains a character vector of its direct parent GO terms.
+#'
 #' @noRd
 .get_parent_map <- function(ont) {
     env_name <- .get_parent_env_name(ont)
@@ -429,6 +500,13 @@ load_go <- function(
 }
 
 
+#' Check whether a value is a valid GO identifier
+#'
+#' @param x Character vector to test.
+#'
+#' @return Logical vector indicating whether elements of \code{x}
+#'   match the GO ID format.
+#'
 #' @noRd
 .is_go_id <- function(x) {
     !is.na(x) & nzchar(x) & grepl("^GO:[0-9]{7}$", x)

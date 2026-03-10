@@ -4,7 +4,7 @@
 \alias{load_go}
 \title{Load a GO sub-ontology graph from \pkg{GO.db}}
 \usage{
-load_go(ont = c("BP", "MF", "CC"), include_obsolete = FALSE)
+load_go(ont = c("BP", "MF", "CC"), include_obsolete = FALSE, version = NULL)
 }
 \arguments{
 \item{ont}{\code{character(1)} GO sub-ontology to load. One of
@@ -13,6 +13,9 @@ load_go(ont = c("BP", "MF", "CC"), include_obsolete = FALSE)
 \item{include_obsolete}{\code{logical(1)} Whether obsolete GO terms
 should be included. If \code{FALSE} (default), obsolete terms are
 removed from the graph.}
+
+\item{version}{Optional \code{character(1)} specifying the expected
+\code{GO.db} version. If provided, the installed version must match.}
 }
 \value{
 A \code{GO} S4 object representing the requested GO sub-ontology.

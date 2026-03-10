@@ -189,3 +189,120 @@
         children = children_sub
     )
 }
+
+
+#' Identify GO terms passing gene set size thresholds
+#'
+#' @description
+#' Determines which GO terms in a \code{GO} or \code{GOSubgraph} object
+#' satisfy optional gene set size constraints based on the attached
+#' organism mapping.
+#'
+#' The function first restricts the GO-to-gene mapping to terms present
+#' in the current graph and then counts the number of mapped genes per
+#' GO term.
+#'
+#' If \code{minGSSize} is provided, only terms with at least that many
+#' mapped genes are retained. If \code{maxGSSize} is provided, only terms
+#' with at most that many mapped genes are retained. If both are
+#' provided, terms within the interval
+#' \code{[minGSSize, maxGSSize]} are retained.
+#'
+#' This helper is used internally by \code{as_term2gene()} and
+#' \code{as_term2name()} to ensure both exported mappings apply
+#' identical gene set size filtering.
+#'
+#' @param go A \code{GO} or \code{GOSubgraph} object with an attached
+#'   organism mapping.
+#' @param minGSSize \code{integer(1)} Minimum number of genes per GO term,
+#'   or \code{NULL}.
+#' @param maxGSSize \code{integer(1)} Maximum number of genes per GO term,
+#'   or \code{NULL}.
+#'
+#' @return \code{character()} vector of GO IDs passing the size filter.
+#'
+#' @noRd
+.filter_terms_by_size <- function(
+        go,
+        minGSSize,
+        maxGSSize
+) {
+    map <- .restrict_go_map(
+        map = go@map,
+        go  = go
+    )
+
+    if (!nrow(map)) {
+        return(character(0))
+    }
+
+    term_sizes <- table(map$go_id)
+    keep <- rep(TRUE, length(term_sizes))
+
+    if (!is.null(minGSSize)) {
+        keep <- keep & term_sizes >= minGSSize
+    }
+
+    if (!is.null(maxGSSize)) {
+        keep <- keep & term_sizes <= maxGSSize
+    }
+
+    names(term_sizes)[keep]
+}
+
+
+#' Validate gene set size thresholds
+#'
+#' @description
+#' Validates the minimum and maximum gene set size parameters used for
+#' optional filtering of GO terms by the number of mapped genes.
+#'
+#' If provided, \code{minGSSize} must be a positive scalar. If provided,
+#' \code{maxGSSize} must be a positive scalar. If both are provided,
+#' \code{maxGSSize} must be greater than or equal to \code{minGSSize}.
+#'
+#' @param minGSSize Minimum number of genes per GO term, or \code{NULL}.
+#' @param maxGSSize Maximum number of genes per GO term, or \code{NULL}.
+#'
+#' @return Invisibly \code{TRUE} if validation succeeds.
+#'
+#' @noRd
+.validate_gs_size <- function(
+        minGSSize,
+        maxGSSize
+) {
+    if (!is.null(minGSSize)) {
+        if (!is.numeric(minGSSize)
+            || length(minGSSize) != 1L
+            || is.na(minGSSize)
+            || minGSSize < 1) {
+            rlang::abort(
+                "`minGSSize` must be a positive integer or NULL.",
+                arg = "minGSSize"
+            )
+        }
+    }
+
+    if (!is.null(maxGSSize)) {
+        if (!is.numeric(maxGSSize)
+            || length(maxGSSize) != 1L
+            || is.na(maxGSSize)
+            || maxGSSize < 1) {
+            rlang::abort(
+                "`maxGSSize` must be a positive integer or NULL.",
+                arg = "maxGSSize"
+            )
+        }
+    }
+
+    if (!is.null(minGSSize) &&
+        !is.null(maxGSSize) &&
+        maxGSSize < minGSSize) {
+        rlang::abort(
+            "`maxGSSize` must be >= `minGSSize`.",
+            arg = "maxGSSize"
+        )
+    }
+
+    invisible(TRUE)
+}
