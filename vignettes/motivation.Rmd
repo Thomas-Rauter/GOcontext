@@ -151,8 +151,8 @@ s = 100.
 
 Test statistics were generated under a two-component mixture model:
 
-- true signals were sampled from a normal distribution with mean shift
-  (\( \mu = 3 \))
+- true signals were sampled from a normal distribution with mean shift 
+(\( \mu = 3 \))
 - null hypotheses were sampled from a standard normal distribution
 
 Two-sided p-values were computed from the resulting z-statistics.
@@ -204,8 +204,7 @@ In the context of Gene Ontology analysis, many restrictions are both
 obvious and biologically justified. Common examples include:
 
 - removing GO terms without annotations for the organism of interest
-- excluding ontology branches that are irrelevant for the system under
-  study
+- excluding ontology branches that are irrelevant for the system under study
 - focusing analyses on specific biological regions of the GO graph
 
 Such restrictions are frequently applied informally in enrichment
@@ -215,5 +214,6 @@ reproducibility while also reducing the multiple testing burden.
 `GOcontext` provides simple tools to construct restricted GO graphs and
 export the resulting annotation mappings for enrichment workflows.
 
-```r
+```{r session info}
 sessionInfo()
+```

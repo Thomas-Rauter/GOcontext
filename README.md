@@ -2,7 +2,13 @@ GOcontext
 ================
 
 [![R-CMD-check](https://github.com/Thomas-Rauter/GOcontext/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main)](https://github.com/Thomas-Rauter/GOcontext/actions/workflows/R-CMD-check.yaml?query=branch%3Amain)
+[![BiocCheck](https://github.com/Thomas-Rauter/GOcontext/actions/workflows/bioc-check.yaml/badge.svg?branch=main)](https://github.com/Thomas-Rauter/GOcontext/actions/workflows/bioc-check.yaml?query=branch%3Amain)
 [![codecov](https://codecov.io/gh/Thomas-Rauter/GOcontext/graph/badge.svg?token=NSXQZRSJ5B)](https://codecov.io/gh/Thomas-Rauter/GOcontext)
+[![pkgdown](https://github.com/Thomas-Rauter/GOcontext/actions/workflows/pkgdown.yaml/badge.svg)](https://thomas-rauter.github.io/GOcontext/)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+[![License:
+MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 <div style="display: flex; align-items: flex-start; gap: 20px;">
 

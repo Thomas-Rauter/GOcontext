@@ -184,7 +184,6 @@ hierarchy interactively.
 ```{r browse go, eval = FALSE}
 res <- GOcontext::browse_go(go_bp)
 ```
- 
 
 The browser allows navigation through the GO DAG and selection of
 terms of interest. The selected terms can then be used as input for

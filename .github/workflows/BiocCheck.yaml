@@ -1,0 +1,41 @@
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+name: BiocCheck
+
+jobs:
+  BiocCheck:
+    runs-on: ubuntu-22.04
+
+    name: BiocCheck (${{ matrix.bioc }})
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        bioc: [release, devel]
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up R + Bioconductor
+        uses: grimbough/bioc-actions/setup-bioc@v1
+        with:
+          bioc-version: ${{ matrix.bioc }}
+
+      - name: Install package dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: |
+            any::rcmdcheck
+            bioc::BiocCheck
+          needs: check
+
+      - name: Run BiocCheck
+        uses: grimbough/bioc-actions/run-BiocCheck@v1
