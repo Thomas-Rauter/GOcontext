@@ -116,3 +116,61 @@ testthat::test_that(".get_go_edges() returns some edges for real keep_ids", {
     testthat::expect_true(base::all(edges$child %in% keep_ids))
     testthat::expect_true(base::all(edges$parent %in% keep_ids))
 })
+
+testthat::test_that(
+    ".validate_go_version() accepts installed GO.db version",
+    {
+        testthat::skip_if_not_installed("GO.db")
+
+        installed_version <- as.character(
+            utils::packageVersion("GO.db")
+        )
+
+        testthat::expect_invisible(
+            GOcontext:::.validate_go_version(installed_version)
+        )
+    }
+)
+
+testthat::test_that(
+    ".validate_go_version() rejects invalid version input type",
+    {
+        testthat::expect_error(
+            GOcontext:::.validate_go_version(1),
+            regexp = "`version` must be NULL or a character\\(1\\)"
+        )
+
+        testthat::expect_error(
+            GOcontext:::.validate_go_version(character(0)),
+            regexp = "`version` must be NULL or a character\\(1\\)"
+        )
+
+        testthat::expect_error(
+            GOcontext:::.validate_go_version(c("1", "2")),
+            regexp = "`version` must be NULL or a character\\(1\\)"
+        )
+
+        testthat::expect_error(
+            GOcontext:::.validate_go_version(NA_character_),
+            regexp = "`version` must be NULL or a character\\(1\\)"
+        )
+    }
+)
+
+testthat::test_that(
+    ".validate_go_version() rejects version mismatch",
+    {
+        testthat::skip_if_not_installed("GO.db")
+
+        installed_version <- as.character(
+            utils::packageVersion("GO.db")
+        )
+
+        bad_version <- paste0(installed_version, ".x")
+
+        testthat::expect_error(
+            GOcontext:::.validate_go_version(bad_version),
+            regexp = "Installed GO.db version .* does not match"
+        )
+    }
+)

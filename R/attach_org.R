@@ -104,7 +104,7 @@ attach_org <- function(
         )
     }
 
-    available_keytypes <- AnnotationDbi::keytypes(OrgDb)
+    available_keytypes <- .annot_keytypes(OrgDb)
     if (!keytype %in% available_keytypes) {
         rlang::abort(
             message = sprintf(
@@ -119,7 +119,7 @@ attach_org <- function(
         )
     }
 
-    available_columns <- AnnotationDbi::columns(OrgDb)
+    available_columns <- .annot_columns(OrgDb)
     if (!keytype %in% available_columns) {
         rlang::abort(
             message = sprintf(
@@ -170,22 +170,22 @@ attach_org <- function(
         return(.empty_go_map())
     }
 
-    available_keytypes <- AnnotationDbi::keytypes(OrgDb)
-    available_columns  <- AnnotationDbi::columns(OrgDb)
+    available_keytypes <- .annot_keytypes(OrgDb)
+    available_columns  <- .annot_columns(OrgDb)
 
     use_go_keytype <-
         "GO" %in% available_keytypes && keytype %in% available_columns
 
     if (use_go_keytype) {
-        res <- AnnotationDbi::select(
-            x       = OrgDb,
-            keys    = go_ids,
+        res <- .annot_select(
+            OrgDb = OrgDb,
+            keys = go_ids,
             keytype = "GO",
             columns = keytype
         )
     } else {
-        keys <- AnnotationDbi::keys(
-            x       = OrgDb,
+        keys <- .annot_keys(
+            OrgDb = OrgDb,
             keytype = keytype
         )
 
@@ -198,9 +198,9 @@ attach_org <- function(
             )
         }
 
-        res <- AnnotationDbi::select(
-            x       = OrgDb,
-            keys    = keys,
+        res <- .annot_select(
+            OrgDb = OrgDb,
+            keys = keys,
             keytype = keytype,
             columns = "GO"
         )
@@ -274,5 +274,38 @@ attach_org <- function(
         go_id            = character(0),
         gene_id          = character(0),
         stringsAsFactors = FALSE
+    )
+}
+
+
+.annot_keytypes <- function(OrgDb) {
+    AnnotationDbi::keytypes(OrgDb)
+}
+
+.annot_columns <- function(OrgDb) {
+    AnnotationDbi::columns(OrgDb)
+}
+
+.annot_keys <- function(
+        OrgDb,
+        keytype
+) {
+    AnnotationDbi::keys(
+        x = OrgDb,
+        keytype = keytype
+    )
+}
+
+.annot_select <- function(
+        OrgDb,
+        keys,
+        keytype,
+        columns
+) {
+    AnnotationDbi::select(
+        x = OrgDb,
+        keys = keys,
+        keytype = keytype,
+        columns = columns
     )
 }

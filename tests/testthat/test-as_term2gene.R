@@ -38,7 +38,7 @@ testthat::test_that(
 )
 
 testthat::test_that(
-    "GOcontext::as_term2gene returns a size-filtered TERM2GENE table for GOSubgraph",
+    "GOcontext::as_term2gene returns a size-filtered TERM2GENE table",
     {
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
@@ -213,5 +213,41 @@ testthat::test_that(
         testthat::expect_false(
             base::any(out$term %in% go_sub@drop_ids)
         )
+    }
+)
+
+testthat::test_that(
+    "GOcontext::as_term2gene returns empty when all mappings are dropped",
+    {
+        testthat::skip_if_not_installed("org.EcK12.eg.db")
+
+        go <- go_cc_ecoli
+        old_map <- go@map
+
+        on.exit(
+            {
+                go@map <- old_map
+            },
+            add = TRUE
+        )
+
+        go@map <- data.frame(
+            go_id = c(NA_character_, "GO:9999999", "GO:9999999"),
+            gene_id = c("g1", NA_character_, "g2"),
+            stringsAsFactors = FALSE
+        )
+
+        out <- GOcontext::as_term2gene(
+            go = go,
+            minGSSize = 1L,
+            maxGSSize = 500L
+        )
+
+        testthat::expect_true(base::is.data.frame(out))
+        testthat::expect_identical(
+            base::names(out),
+            c("term", "gene")
+        )
+        testthat::expect_identical(base::nrow(out), 0L)
     }
 )

@@ -181,3 +181,99 @@ testthat::test_that(
         testthat::expect_match(out$summary$path, "GO:0000001")
     }
 )
+
+.make_toy_go_deep <- function() {
+    ids <- c(
+        "GO:0000001",
+        "GO:0000002",
+        "GO:0000003",
+        "GO:0000004",
+        "GO:0000005"
+    )
+
+    terms <- base::data.frame(
+        go_id = ids,
+        term = c("root", "mid", "branch", "leaf", "sib"),
+        ontology = "CC",
+        obsolete = c(FALSE, FALSE, FALSE, FALSE, FALSE),
+        stringsAsFactors = FALSE
+    )
+
+    edges <- base::data.frame(
+        child = c(
+            "GO:0000002",
+            "GO:0000003",
+            "GO:0000004",
+            "GO:0000005"
+        ),
+        parent = c(
+            "GO:0000001",
+            "GO:0000002",
+            "GO:0000003",
+            "GO:0000001"
+        ),
+        stringsAsFactors = FALSE
+    )
+
+    parents <- list(
+        "GO:0000001" = character(0),
+        "GO:0000002" = "GO:0000001",
+        "GO:0000003" = "GO:0000002",
+        "GO:0000004" = "GO:0000003",
+        "GO:0000005" = "GO:0000001"
+    )
+
+    children <- list(
+        "GO:0000001" = c("GO:0000002", "GO:0000005"),
+        "GO:0000002" = "GO:0000003",
+        "GO:0000003" = "GO:0000004",
+        "GO:0000004" = character(0),
+        "GO:0000005" = character(0)
+    )
+
+    methods::new(
+        "GO",
+        ontology = "CC",
+        version = "test-version",
+        ids = ids,
+        terms = terms,
+        edges = edges,
+        parents = parents,
+        children = children,
+        map = base::data.frame(
+            go_id = character(0),
+            gene_id = character(0),
+            stringsAsFactors = FALSE
+        )
+    )
+}
+
+testthat::test_that(
+    "GOcontext::browse_go does not add a node covered by an ancestor",
+    {
+        toy_go <- .make_toy_go_deep()
+
+        testthat::local_mocked_bindings(
+            menu = .local_menu_choices(list(
+                4L,  # root view: enter GO:0000002
+                1L,  # add current node GO:0000002
+                4L,  # enter GO:0000003 from GO:0000002 view
+                1L,  # try to add GO:0000003, should be blocked
+                2L,  # go up to GO:0000002 view
+                2L,  # go up to root view
+                3L   # finish
+            )),
+            .package = "utils"
+        )
+
+        testthat::expect_message(
+            out <- GOcontext::browse_go(toy_go),
+            regexp = "Not added\\. Already covered by ancestor: GO:0000002"
+        )
+
+        testthat::expect_identical(out$ids, "GO:0000002")
+        testthat::expect_identical(base::nrow(out$summary), 1L)
+        testthat::expect_identical(out$summary$id, "GO:0000002")
+        testthat::expect_identical(out$summary$term, "mid")
+    }
+)
