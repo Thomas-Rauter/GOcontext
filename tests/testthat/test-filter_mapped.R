@@ -3,11 +3,11 @@ testthat::test_that(
     {
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
-        go_sub <- GOcontext::filter_mapped(.go_cc_ecoli)
+        go_sub <- GOcontext::filter_mapped(go_cc_ecoli)
 
         testthat::expect_true(methods::is(go_sub, "GOSubgraph"))
-        testthat::expect_identical(go_sub@ontology, .go_cc_ecoli@ontology)
-        testthat::expect_identical(go_sub@version, .go_cc_ecoli@version)
+        testthat::expect_identical(go_sub@ontology, go_cc_ecoli@ontology)
+        testthat::expect_identical(go_sub@version, go_cc_ecoli@version)
         testthat::expect_identical(go_sub@seed_ids, character(0))
         testthat::expect_identical(go_sub@mode, "keep")
 
@@ -21,7 +21,7 @@ testthat::test_that(
         testthat::expect_identical(go_sub@keep_ids, go_sub@terms$go_id)
         testthat::expect_identical(
             base::sort(base::c(go_sub@keep_ids, go_sub@drop_ids)),
-            base::sort(.go_cc_ecoli@terms$go_id)
+            base::sort(go_cc_ecoli@terms$go_id)
         )
         testthat::expect_identical(
             base::intersect(go_sub@keep_ids, go_sub@drop_ids),
@@ -29,13 +29,13 @@ testthat::test_that(
         )
 
         testthat::expect_true(
-            base::all(go_sub@keep_ids %in% .go_cc_ecoli@map$go_id)
+            base::all(go_sub@keep_ids %in% go_cc_ecoli@map$go_id)
         )
         testthat::expect_true(
-            base::all(go_sub@terms$go_id %in% .go_cc_ecoli@map$go_id)
+            base::all(go_sub@terms$go_id %in% go_cc_ecoli@map$go_id)
         )
 
-        testthat::expect_identical(go_sub@map, .go_cc_ecoli@map)
+        testthat::expect_identical(go_sub@map, go_cc_ecoli@map)
 
         testthat::expect_identical(
             base::names(go_sub@parents),
@@ -62,11 +62,11 @@ testthat::test_that(
     {
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
-        go_sub <- GOcontext::filter_mapped(.go_cc_ecoli)
+        go_sub <- GOcontext::filter_mapped(go_cc_ecoli)
 
         expected_keep <- base::intersect(
-            base::unique(.go_cc_ecoli@map$go_id),
-            .go_cc_ecoli@terms$go_id
+            base::unique(go_cc_ecoli@map$go_id),
+            go_cc_ecoli@terms$go_id
         )
 
         testthat::expect_identical(
@@ -81,10 +81,10 @@ testthat::test_that(
     {
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
-        mapped_id <- .go_cc_ecoli@map$go_id[[1]]
+        mapped_id <- go_cc_ecoli@map$go_id[[1]]
 
         go_small <- GOcontext::subset_go(
-            go = .go_cc_ecoli,
+            go = go_cc_ecoli,
             ids = mapped_id,
             mode = "keep"
         )
@@ -117,7 +117,7 @@ testthat::test_that(
     "GOcontext::filter_mapped rejects GO objects without mapping",
     {
         testthat::expect_error(
-            GOcontext::filter_mapped(.go_cc),
+            GOcontext::filter_mapped(go_cc),
             regexp = "must have a non-empty attached organism mapping"
         )
     }

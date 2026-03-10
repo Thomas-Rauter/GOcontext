@@ -20,6 +20,21 @@
 #'
 #' @return A \code{data.frame} with columns \code{term} and \code{gene}.
 #'
+#' @examples
+#' data("go_cc_ecoli", package = "GOcontext")
+#'
+#' # Export GO mappings as TERM2GENE
+#' term2gene <- as_term2gene(go_cc_ecoli)
+#' head(term2gene)
+#'
+#' # Apply size filtering similar to clusterProfiler
+#' term2gene_filtered <- as_term2gene(
+#'     go = go_cc_ecoli,
+#'     minGSSize = 5,
+#'     maxGSSize = 100
+#' )
+#' head(term2gene_filtered)
+#'
 #' @export
 as_term2gene <- function(
         go,

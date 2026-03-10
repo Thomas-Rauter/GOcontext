@@ -49,7 +49,7 @@ testthat::test_that(
 
         testthat::expect_invisible(
             GOcontext:::.attach_org_validate_inputs(
-                go = .go_cc,
+                go = go_cc,
                 OrgDb = org.EcK12.eg.db::org.EcK12.eg.db,
                 keytype = "ENTREZID"
             )
@@ -62,7 +62,7 @@ testthat::test_that(
     {
         testthat::expect_error(
             GOcontext:::.attach_org_validate_inputs(
-                go = .go_cc,
+                go = go_cc,
                 OrgDb = "not_an_orgdb",
                 keytype = "ENTREZID"
             ),
@@ -80,7 +80,7 @@ testthat::test_that(
 
         testthat::expect_error(
             GOcontext:::.attach_org_validate_inputs(
-                go = .go_cc,
+                go = go_cc,
                 OrgDb = org_db,
                 keytype = NA_character_
             ),
@@ -89,7 +89,7 @@ testthat::test_that(
 
         testthat::expect_error(
             GOcontext:::.attach_org_validate_inputs(
-                go = .go_cc,
+                go = go_cc,
                 OrgDb = org_db,
                 keytype = ""
             ),
@@ -98,7 +98,7 @@ testthat::test_that(
 
         testthat::expect_error(
             GOcontext:::.attach_org_validate_inputs(
-                go = .go_cc,
+                go = go_cc,
                 OrgDb = org_db,
                 keytype = "NOT_A_KEYTYPE"
             ),
@@ -113,7 +113,7 @@ testthat::test_that(
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
         out <- GOcontext:::.attach_org_build_map(
-            go = .go_cc,
+            go = go_cc,
             OrgDb = org.EcK12.eg.db::org.EcK12.eg.db,
             keytype = "ENTREZID"
         )
@@ -128,7 +128,7 @@ testthat::test_that(
         testthat::expect_false(base::anyNA(out$gene_id))
         testthat::expect_identical(base::anyDuplicated(out), 0L)
         testthat::expect_true(
-            base::all(out$go_id %in% .go_cc@terms$go_id)
+            base::all(out$go_id %in% go_cc@terms$go_id)
         )
     }
 )
@@ -161,21 +161,21 @@ testthat::test_that(
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
         map <- GOcontext:::.attach_org_build_map(
-            go = .go_cc,
+            go = go_cc,
             OrgDb = org.EcK12.eg.db::org.EcK12.eg.db,
             keytype = "ENTREZID"
         )
 
         go_out <- GOcontext:::.attach_org_set_map(
-            go = .go_cc,
+            go = go_cc,
             map = map
         )
 
         testthat::expect_true(methods::is(go_out, "GO"))
         testthat::expect_identical(go_out@map, map)
-        testthat::expect_identical(go_out@ontology, .go_cc@ontology)
-        testthat::expect_identical(go_out@version, .go_cc@version)
-        testthat::expect_identical(go_out@ids, .go_cc@ids)
-        testthat::expect_identical(go_out@terms, .go_cc@terms)
+        testthat::expect_identical(go_out@ontology, go_cc@ontology)
+        testthat::expect_identical(go_out@version, go_cc@version)
+        testthat::expect_identical(go_out@ids, go_cc@ids)
+        testthat::expect_identical(go_out@terms, go_cc@terms)
     }
 )

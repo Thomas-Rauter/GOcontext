@@ -22,3 +22,10 @@ The mapping must have been attached previously using
 \code{attach_org()}. The mapping itself is not modified; only the
 graph structure is restricted.
 }
+\examples{
+data("go_cc_ecoli", package = "GOcontext")
+
+go_cc_ecoli_mapped <- filter_mapped(go_cc_ecoli)
+go_cc_ecoli_mapped
+
+}

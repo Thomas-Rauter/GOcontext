@@ -2,14 +2,14 @@
 
 testthat::test_that(".assert_go_like() accepts a valid GO object", {
     testthat::expect_invisible(
-        GOcontext:::.assert_go_like(.go_cc, arg = "go")
+        GOcontext:::.assert_go_like(go_cc, arg = "go")
     )
 })
 
 testthat::test_that(".assert_go_like() accepts a valid GOSubgraph object", {
     go_sub <- GOcontext::subset_go(
-        go = .go_cc,
-        ids = .go_cc@terms$go_id[[1]],
+        go = go_cc,
+        ids = go_cc@terms$go_id[[1]],
         mode = "keep"
     )
 
@@ -28,7 +28,7 @@ testthat::test_that(".assert_go_like() errors on invalid class", {
 })
 
 testthat::test_that(".assert_go_like() errors on invalid ontology slot", {
-    go <- .go_cc
+    go <- go_cc
     old <- go@ontology
     on.exit({ go@ontology <- old }, add = TRUE)
 
@@ -41,7 +41,7 @@ testthat::test_that(".assert_go_like() errors on invalid ontology slot", {
 })
 
 testthat::test_that(".assert_go_like() errors on invalid version slot", {
-    go <- .go_cc
+    go <- go_cc
     old <- go@version
     on.exit({ go@version <- old }, add = TRUE)
 
@@ -54,7 +54,7 @@ testthat::test_that(".assert_go_like() errors on invalid version slot", {
 })
 
 testthat::test_that(".assert_go_like() errors on invalid terms slot", {
-    go <- .go_cc
+    go <- go_cc
     old <- go@terms
     on.exit({ go@terms <- old }, add = TRUE)
 
@@ -70,7 +70,7 @@ testthat::test_that(".assert_go_like() errors on invalid terms slot", {
 })
 
 testthat::test_that(".assert_go_like() errors on invalid edges slot", {
-    go <- .go_cc
+    go <- go_cc
     old <- go@edges
     on.exit({ go@edges <- old }, add = TRUE)
 
@@ -86,7 +86,7 @@ testthat::test_that(".assert_go_like() errors on invalid edges slot", {
 })
 
 testthat::test_that(".assert_go_like() errors on invalid parents slot", {
-    go <- .go_cc
+    go <- go_cc
     old <- go@parents
     on.exit({ go@parents <- old }, add = TRUE)
 
@@ -99,7 +99,7 @@ testthat::test_that(".assert_go_like() errors on invalid parents slot", {
 })
 
 testthat::test_that(".assert_go_like() errors on invalid children slot", {
-    go <- .go_cc
+    go <- go_cc
     old <- go@children
     on.exit({ go@children <- old }, add = TRUE)
 
@@ -116,7 +116,7 @@ testthat::test_that(
     {
         testthat::expect_error(
             GOcontext:::.assert_go_like(
-                .go_cc,
+                go_cc,
                 arg = "go",
                 require_map = TRUE
             ),
@@ -131,7 +131,7 @@ testthat::test_that(
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
         go_mapped <- GOcontext::attach_org(
-            go = .go_cc,
+            go = go_cc,
             OrgDb = org.EcK12.eg.db::org.EcK12.eg.db,
             keytype = "ENTREZID"
         )

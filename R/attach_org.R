@@ -14,6 +14,19 @@
 #'
 #' @return The same object as \code{go}, with an attached mapping table.
 #'
+#' @examples
+#' data("go_cc", package = "GOcontext")
+#'
+#' if (requireNamespace("org.EcK12.eg.db", quietly = TRUE)) {
+#'     go_cc_ecoli <- attach_org(
+#'         go = go_cc,
+#'         OrgDb = org.EcK12.eg.db::org.EcK12.eg.db,
+#'         keytype = "ENTREZID"
+#'     )
+#'
+#'     go_cc_ecoli
+#' }
+#'
 #' @export
 attach_org <- function(
         go,

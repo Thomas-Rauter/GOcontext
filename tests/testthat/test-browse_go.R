@@ -81,7 +81,7 @@ testthat::test_that(
             .package = "utils"
         )
 
-        out <- GOcontext::browse_go(.go_cc)
+        out <- GOcontext::browse_go(go_cc)
         testthat::expect_null(out)
     }
 )

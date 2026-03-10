@@ -14,6 +14,12 @@
 #' @return A \code{GOSubgraph} restricted to GO terms with at least one
 #'   mapped gene.
 #'
+#' @examples
+#' data("go_cc_ecoli", package = "GOcontext")
+#'
+#' go_cc_ecoli_mapped <- filter_mapped(go_cc_ecoli)
+#' go_cc_ecoli_mapped
+#'
 #' @export
 filter_mapped <- function(go) {
     .assert_go_like(

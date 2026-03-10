@@ -14,6 +14,15 @@
 #'   \item \code{summary}: \code{data.frame} summarizing the selected terms.
 #' }
 #'
+#' @examples
+#' data("go_cc", package = "GOcontext")
+#'
+#' if (interactive()) {
+#'     res <- browse_go(go_cc)
+#'     res$ids
+#'     res$summary
+#' }
+#'
 #' @export
 browse_go <- function(go) {
     .assert_go_like(go = go)

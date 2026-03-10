@@ -30,3 +30,19 @@ Optional size filtering can be applied to restrict the number of genes
 per GO term, similar to the \code{minGSSize} and \code{maxGSSize}
 arguments used by \code{clusterProfiler}.
 }
+\examples{
+data("go_cc_ecoli", package = "GOcontext")
+
+# Export GO mappings as TERM2GENE
+term2gene <- as_term2gene(go_cc_ecoli)
+head(term2gene)
+
+# Apply size filtering similar to clusterProfiler
+term2gene_filtered <- as_term2gene(
+    go = go_cc_ecoli,
+    minGSSize = 5,
+    maxGSSize = 100
+)
+head(term2gene_filtered)
+
+}

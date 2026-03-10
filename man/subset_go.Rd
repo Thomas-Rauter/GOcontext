@@ -22,3 +22,21 @@ Given one or more GO IDs, induce a subgraph by either keeping those terms
 and all their descendants, or excluding those terms and all their
 descendants, within the current graph.
 }
+\examples{
+data("go_cc_ecoli", package = "GOcontext")
+
+go_cc_ecoli_keep <- subset_go(
+    go = go_cc_ecoli,
+    ids = "GO:0009279",
+    mode = "keep"
+)
+go_cc_ecoli_keep
+
+go_cc_ecoli_exclude <- subset_go(
+    go = go_cc_ecoli,
+    ids = "GO:0009279",
+    mode = "exclude"
+)
+go_cc_ecoli_exclude
+
+}

@@ -3,7 +3,7 @@ testthat::test_that(
     {
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
-        out <- GOcontext::as_term2gene(.go_cc_ecoli)
+        out <- GOcontext::as_term2gene(go_cc_ecoli)
 
         testthat::expect_true(base::is.data.frame(out))
         testthat::expect_identical(
@@ -19,16 +19,16 @@ testthat::test_that(
         testthat::expect_identical(base::anyDuplicated(out), 0L)
 
         testthat::expect_true(
-            base::all(out$term %in% .go_cc_ecoli@terms$go_id)
+            base::all(out$term %in% go_cc_ecoli@terms$go_id)
         )
         testthat::expect_true(
-            base::all(out$term %in% .go_cc_ecoli@map$go_id)
+            base::all(out$term %in% go_cc_ecoli@map$go_id)
         )
         testthat::expect_true(
-            base::all(out$gene %in% .go_cc_ecoli@map$gene_id)
+            base::all(out$gene %in% go_cc_ecoli@map$gene_id)
         )
 
-        term_sizes <- table(.go_cc_ecoli@map$go_id)
+        term_sizes <- table(go_cc_ecoli@map$go_id)
         keep_terms <- names(term_sizes)[
             term_sizes >= 10L & term_sizes <= 500L
         ]
@@ -42,10 +42,10 @@ testthat::test_that(
     {
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
-        seed <- .go_cc_ecoli@map$go_id[[1]]
+        seed <- go_cc_ecoli@map$go_id[[1]]
 
         go_sub <- GOcontext::subset_go(
-            go = .go_cc_ecoli,
+            go = go_cc_ecoli,
             ids = seed,
             mode = "keep"
         )
@@ -88,7 +88,7 @@ testthat::test_that(
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
         out <- GOcontext::as_term2gene(
-            .go_cc_ecoli,
+            go_cc_ecoli,
             minGSSize = 1L,
             maxGSSize = 5L
         )
@@ -114,7 +114,7 @@ testthat::test_that(
 
         testthat::expect_error(
             GOcontext::as_term2gene(
-                .go_cc_ecoli,
+                go_cc_ecoli,
                 minGSSize = 0
             ),
             regexp = "`minGSSize` must be a positive integer"
@@ -122,7 +122,7 @@ testthat::test_that(
 
         testthat::expect_error(
             GOcontext::as_term2gene(
-                .go_cc_ecoli,
+                go_cc_ecoli,
                 minGSSize = 10L,
                 maxGSSize = 5L
             ),
@@ -135,7 +135,7 @@ testthat::test_that(
     "GOcontext::as_term2gene rejects GO objects without mapping",
     {
         testthat::expect_error(
-            GOcontext::as_term2gene(.go_cc),
+            GOcontext::as_term2gene(go_cc),
             regexp = "must have a non-empty attached organism mapping"
         )
     }
@@ -156,7 +156,7 @@ testthat::test_that(
     {
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
-        go <- .go_cc_ecoli
+        go <- go_cc_ecoli
         old_map <- go@map
 
         on.exit(
@@ -197,10 +197,10 @@ testthat::test_that(
     {
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
-        seed <- .go_cc_ecoli@map$go_id[[1]]
+        seed <- go_cc_ecoli@map$go_id[[1]]
 
         go_sub <- GOcontext::subset_go(
-            go = .go_cc_ecoli,
+            go = go_cc_ecoli,
             ids = seed,
             mode = "keep"
         )

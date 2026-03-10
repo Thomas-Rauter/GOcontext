@@ -16,6 +16,21 @@
 #'
 #' @return A \code{data.frame} with columns \code{term} and \code{name}.
 #'
+#' @examples
+#' data("go_cc_ecoli", package = "GOcontext")
+#'
+#' # Export GO term names for the current graph
+#' term2name <- as_term2name(go_cc_ecoli)
+#' head(term2name)
+#'
+#' # Apply size filtering based on mapped genes
+#' term2name_filtered <- as_term2name(
+#'     go = go_cc_ecoli,
+#'     minGSSize = 5,
+#'     maxGSSize = 100
+#' )
+#' head(term2name_filtered)
+#'
 #' @export
 as_term2name <- function(
         go,

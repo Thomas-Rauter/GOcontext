@@ -12,6 +12,23 @@
 #'
 #' @return A \code{GOSubgraph} object.
 #'
+#' @examples
+#' data("go_cc_ecoli", package = "GOcontext")
+#'
+#' go_cc_ecoli_keep <- subset_go(
+#'     go = go_cc_ecoli,
+#'     ids = "GO:0009279",
+#'     mode = "keep"
+#' )
+#' go_cc_ecoli_keep
+#'
+#' go_cc_ecoli_exclude <- subset_go(
+#'     go = go_cc_ecoli,
+#'     ids = "GO:0009279",
+#'     mode = "exclude"
+#' )
+#' go_cc_ecoli_exclude
+#'
 #' @export
 subset_go <- function(
         go,

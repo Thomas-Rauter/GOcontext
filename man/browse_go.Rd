@@ -21,3 +21,13 @@ Provides an interactive console browser for exploring the Gene Ontology
 hierarchy. The user can navigate through parent–child relationships,
 add nodes of interest, and return the selected GO IDs.
 }
+\examples{
+data("go_cc", package = "GOcontext")
+
+if (interactive()) {
+    res <- browse_go(go_cc)
+    res$ids
+    res$summary
+}
+
+}

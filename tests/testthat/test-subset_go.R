@@ -1,17 +1,17 @@
 testthat::test_that(
     "GOcontext::subset_go keep returns a coherent GOSubgraph",
     {
-        seed <- .go_cc@terms$go_id[[1]]
+        seed <- go_cc@terms$go_id[[1]]
 
         go_sub <- GOcontext::subset_go(
-            go = .go_cc,
+            go = go_cc,
             ids = seed,
             mode = "keep"
         )
 
         testthat::expect_true(methods::is(go_sub, "GOSubgraph"))
-        testthat::expect_identical(go_sub@ontology, .go_cc@ontology)
-        testthat::expect_identical(go_sub@version, .go_cc@version)
+        testthat::expect_identical(go_sub@ontology, go_cc@ontology)
+        testthat::expect_identical(go_sub@version, go_cc@version)
         testthat::expect_identical(go_sub@seed_ids, seed)
         testthat::expect_identical(go_sub@mode, "keep")
 
@@ -21,7 +21,7 @@ testthat::test_that(
 
         testthat::expect_identical(
             base::sort(base::c(go_sub@keep_ids, go_sub@drop_ids)),
-            base::sort(.go_cc@terms$go_id)
+            base::sort(go_cc@terms$go_id)
         )
         testthat::expect_identical(
             base::intersect(go_sub@keep_ids, go_sub@drop_ids),
@@ -46,17 +46,17 @@ testthat::test_that(
             )
         }
 
-        testthat::expect_identical(go_sub@map, .go_cc@map)
+        testthat::expect_identical(go_sub@map, go_cc@map)
     }
 )
 
 testthat::test_that(
     "GOcontext::subset_go exclude removes the selected branch seed",
     {
-        seed <- .go_cc@terms$go_id[[1]]
+        seed <- go_cc@terms$go_id[[1]]
 
         go_sub <- GOcontext::subset_go(
-            go = .go_cc,
+            go = go_cc,
             ids = seed,
             mode = "exclude"
         )
@@ -70,7 +70,7 @@ testthat::test_that(
 
         testthat::expect_identical(
             base::sort(base::c(go_sub@keep_ids, go_sub@drop_ids)),
-            base::sort(.go_cc@terms$go_id)
+            base::sort(go_cc@terms$go_id)
         )
         testthat::expect_identical(
             base::intersect(go_sub@keep_ids, go_sub@drop_ids),
@@ -82,10 +82,10 @@ testthat::test_that(
 testthat::test_that(
     "GOcontext::subset_go removes duplicate seed IDs in output metadata",
     {
-        seed <- .go_cc@terms$go_id[[1]]
+        seed <- go_cc@terms$go_id[[1]]
 
         go_sub <- GOcontext::subset_go(
-            go = .go_cc,
+            go = go_cc,
             ids = base::c(seed, seed),
             mode = "keep"
         )
@@ -98,9 +98,9 @@ testthat::test_that(
 testthat::test_that(
     "GOcontext::subset_go works on an existing GOSubgraph",
     {
-        seed1 <- .go_cc@terms$go_id[[1]]
+        seed1 <- go_cc@terms$go_id[[1]]
         first_sub <- GOcontext::subset_go(
-            go = .go_cc,
+            go = go_cc,
             ids = seed1,
             mode = "keep"
         )
@@ -132,16 +132,16 @@ testthat::test_that(
     {
         testthat::skip_if_not_installed("org.EcK12.eg.db")
 
-        seed <- .go_cc_ecoli@terms$go_id[[1]]
+        seed <- go_cc_ecoli@terms$go_id[[1]]
 
         go_sub <- GOcontext::subset_go(
-            go = .go_cc_ecoli,
+            go = go_cc_ecoli,
             ids = seed,
             mode = "keep"
         )
 
         testthat::expect_true(methods::is(go_sub, "GOSubgraph"))
-        testthat::expect_identical(go_sub@map, .go_cc_ecoli@map)
+        testthat::expect_identical(go_sub@map, go_cc_ecoli@map)
     }
 )
 
@@ -164,7 +164,7 @@ testthat::test_that(
     {
         testthat::expect_error(
             GOcontext::subset_go(
-                go = .go_cc,
+                go = go_cc,
                 ids = character(0),
                 mode = "keep"
             ),
@@ -173,7 +173,7 @@ testthat::test_that(
 
         testthat::expect_error(
             GOcontext::subset_go(
-                go = .go_cc,
+                go = go_cc,
                 ids = NA_character_,
                 mode = "keep"
             ),
@@ -182,7 +182,7 @@ testthat::test_that(
 
         testthat::expect_error(
             GOcontext::subset_go(
-                go = .go_cc,
+                go = go_cc,
                 ids = 1,
                 mode = "keep"
             ),
@@ -196,7 +196,7 @@ testthat::test_that(
     {
         testthat::expect_error(
             GOcontext::subset_go(
-                go = .go_cc,
+                go = go_cc,
                 ids = "GO:9999999",
                 mode = "keep"
             ),
