@@ -306,3 +306,38 @@
 
     invisible(TRUE)
 }
+
+
+#' Call \code{AnnotationDbi::select()} while silencing mapping summary messages
+#'
+#' @description
+#' Internal wrapper around \code{AnnotationDbi::select()} that suppresses the
+#' standard informational messages reporting mapping multiplicity (e.g.
+#' \emph{"'select()' returned 1:1 mapping between keys and columns"}).
+#'
+#' These messages are emitted by \code{AnnotationDbi::select()} to indicate the
+#' relationship between input keys and returned rows, but they can be
+#' distracting in programmatic workflows where the mapping behavior is handled
+#' explicitly.
+#'
+#' This helper intercepts those specific messages and muffles them while
+#' allowing all other messages and conditions to propagate normally.
+#'
+#' @param ... Arguments passed directly to \code{AnnotationDbi::select()}.
+#'
+#' @return The result returned by \code{AnnotationDbi::select()}.
+#'
+#' @noRd
+.silent_annotationdbi_select <- function(...) {
+    withCallingHandlers(
+        AnnotationDbi::select(...),
+        message = function(m) {
+            if (grepl(
+                pattern = "^'select\\(\\)' returned ",
+                x = conditionMessage(m)
+            )) {
+                invokeRestart("muffleMessage")
+            }
+        }
+    )
+}

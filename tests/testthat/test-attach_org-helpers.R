@@ -218,17 +218,17 @@ testthat::test_that(
                 c("GO", "ENTREZID", "SYMBOL")
             },
             .annot_keys = function(
-        OrgDb,
-        keytype
+                OrgDb,
+                keytype
             ) {
                 c("945006", "945007")
             },
-        .annot_select = function(
-        OrgDb,
-        keys,
-        keytype,
-        columns
-        ) {
+           .silent_annotationdbi_select = function(
+                x,
+                keys,
+                keytype,
+                columns
+            ) {
             data.frame(
                 ENTREZID = c("945006", "945007"),
                 GO = c(
@@ -306,11 +306,11 @@ testthat::test_that(
             .annot_columns = function(OrgDb) {
                 c("GO", "ENTREZID")
             },
-            .annot_select = function(
-        OrgDb,
-        keys,
-        keytype,
-        columns
+            .silent_annotationdbi_select = function(
+                x,
+                keys,
+                keytype,
+                columns
             ) {
                 data.frame(
                     GO = character(0),
@@ -347,11 +347,11 @@ testthat::test_that(
             .annot_columns = function(OrgDb) {
                 c("GO", "ENTREZID")
             },
-            .annot_select = function(
-        OrgDb,
-        keys,
-        keytype,
-        columns
+            .silent_annotationdbi_select = function(
+                x,
+                keys,
+                keytype,
+                columns
             ) {
                 data.frame(
                     BADCOL = "x",
@@ -398,11 +398,11 @@ testthat::test_that(
             .annot_columns = function(OrgDb) {
                 c("GO", "ENTREZID")
             },
-            .annot_select = function(
-        OrgDb,
-        keys,
-        keytype,
-        columns
+            .silent_annotationdbi_select = function(
+                x,
+                keys,
+                keytype,
+                columns
             ) {
                 data.frame(
                     GO = NA_character_,

@@ -295,13 +295,23 @@ load_go <- function(
 ) {
     keep_ids <- .get_term_ids_from_parents(parent_map)
 
-    term_vec <- AnnotationDbi::mapIds(
-        x         = GO.db::GO.db,
-        keys      = keep_ids,
-        column    = "TERM",
-        keytype   = "GOID",
-        multiVals = "first",
-        select    = FALSE
+    term_vec <- withCallingHandlers(
+        AnnotationDbi::mapIds(
+            x         = GO.db::GO.db,
+            keys      = keep_ids,
+            column    = "TERM",
+            keytype   = "GOID",
+            multiVals = "first",
+            select    = FALSE
+        ),
+        message = function(m) {
+            if (grepl(
+                pattern = "^'select\\(\\)' returned ",
+                x = conditionMessage(m)
+            )) {
+                invokeRestart("muffleMessage")
+            }
+        }
     )
 
     df <- data.frame(

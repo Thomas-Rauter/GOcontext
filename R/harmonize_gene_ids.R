@@ -499,18 +499,11 @@ harmonize_gene_ids <- function(
         idx_kt <- split_idx[[kt]]
         genes_kt <- genes[idx_kt]
 
-        sel <- withCallingHandlers(
-            AnnotationDbi::select(
-                x = OrgDb,
-                keys = genes_kt,
-                keytype = kt,
-                columns = to_keytype
-            ),
-            message = function(m) {
-                if (grepl("^'select\\(\\)' returned", conditionMessage(m))) {
-                    invokeRestart("muffleMessage")
-                }
-            }
+        sel <- .silent_annotationdbi_select(
+            x       = OrgDb,
+            keys    = genes_kt,
+            keytype = kt,
+            columns = to_keytype
         )
 
         if (!nrow(sel) || !all(c(kt, to_keytype) %in% names(sel))) {

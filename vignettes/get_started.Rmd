@@ -189,6 +189,52 @@ The browser allows navigation through the GO DAG and selection of
 terms of interest. The selected terms can then be used as input for
 `subset_go()`.
 
+
+
+## Harmonizing gene identifiers
+
+Gene lists used for enrichment analyses often contain mixed identifier
+types (e.g. gene symbols, Entrez IDs, aliases). Before running
+enrichment, it can be useful to check whether the identifiers match the
+annotation database used to define the GO universe.
+
+`GOcontext` provides `harmonize_gene_ids()` to diagnose and harmonize
+such identifiers.
+
+```{r harmonize_gene_ids}
+genes <- c(
+    "b0002",    # SYMBOL
+    "thrA",     # ALIAS
+    "944742",   # ENTREZID
+    "not_a_gene",
+    NA_character_
+)
+
+res <- GOcontext::harmonize_gene_ids(
+    genes = genes,
+    OrgDb = org.EcK12.eg.db,
+    to_keytype = "ENTREZID",
+    from_keytypes = c("SYMBOL", "ALIAS")
+)
+```
+
+The result is a table aligned with the input vector showing whether each
+identifier matched the target key type, matched a fallback type, or
+could not be mapped.
+
+```{r overview}
+head(res)
+```
+
+If a unique mapping exists, the harmonized identifiers can be extracted
+for downstream analyses.
+
+```{r res}
+gene_ids <- res$harmonized
+```
+
+
+
 ## Summary
 
 `GOcontext` enables reproducible construction of restricted GO graphs
