@@ -56,9 +56,9 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="gocontext">GOcontext<a class="anchor" aria-label="anchor" href="#gocontext"></a>
 </h1></div>
-<p><a href="https://github.com/Thomas-Rauter/GOcontext/actions/workflows/R-CMD-check.yaml?query=branch%3Amain" class="external-link"><img src="https://github.com/Thomas-Rauter/GOcontext/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main" alt="R-CMD-check"></a> <a href="https://codecov.io/gh/Thomas-Rauter/GOcontext" class="external-link"><img src="https://codecov.io/gh/Thomas-Rauter/GOcontext/graph/badge.svg?token=NSXQZRSJ5B" alt="codecov"></a></p>
+<p><a href="https://github.com/Thomas-Rauter/GOcontext/actions/workflows/R-CMD-check.yaml?query=branch%3Amain" class="external-link"><img src="https://github.com/Thomas-Rauter/GOcontext/actions/workflows/R-CMD-check.yaml/badge.svg?branch=main" alt="R-CMD-check"></a> <a href="https://github.com/Thomas-Rauter/GOcontext/actions/workflows/bioc-check.yaml?query=branch%3Amain" class="external-link"><img src="https://github.com/Thomas-Rauter/GOcontext/actions/workflows/bioc-check.yaml/badge.svg?branch=main" alt="BiocCheck"></a> <a href="https://codecov.io/gh/Thomas-Rauter/GOcontext" class="external-link"><img src="https://codecov.io/gh/Thomas-Rauter/GOcontext/graph/badge.svg?token=NSXQZRSJ5B" alt="codecov"></a> <a href="https://thomas-rauter.github.io/GOcontext/" class="external-link"><img src="https://github.com/Thomas-Rauter/GOcontext/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown"></a> <a href="https://lifecycle.r-lib.org/articles/stages.html" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a></p>
 <div style="display: flex; align-items: flex-start; gap: 20px;">
-<p><img src="reference/figures/GOcontext_hex.png" width="200"></p>
+<p><img src="reference/figures/GOcontext_hex.png" width="70"></p>
 <div><p>Context-aware restriction of the Gene Ontology (GO) hypothesis space for enrichment analysis.</p></div>
 </div>
 <p><code>GOcontext</code> constructs <strong>context-specific GO subgraphs</strong> to restrict the set of GO terms tested in enrichment analysis. Starting from the Gene Ontology graph distributed in <code>GO.db</code>, organism-specific GO-to-gene mappings can be attached from an <code>OrgDb</code>, and the ontology can then be restricted to terms relevant to the current biological context.</p>
@@ -67,10 +67,7 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<!-- ### Bioconductor --><!-- ```{r install from Bioconductor, eval = TRUE} --><!-- if (!requireNamespace("BiocManager", quietly = TRUE)) { --><!--   install.packages("BiocManager") --><!-- } --><!-- BiocManager::install("GOcontext") --><!-- ``` --><div class="section level3">
-<h3 id="development-version">Development version<a class="anchor" aria-label="anchor" href="#development-version"></a>
-</h3>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<!-- ### Bioconductor --><!-- ```{r install from Bioconductor, eval = TRUE} --><!-- if (!requireNamespace("BiocManager", quietly = TRUE)) { --><!--   install.packages("BiocManager") --><!-- } --><!-- BiocManager::install("GOcontext") --><!-- ``` --><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"remotes"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"remotes"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
@@ -82,7 +79,6 @@
 <span>  upgrade <span class="op">=</span> <span class="st">"always"</span>    <span class="co"># Always upgrade dependencies</span></span>
 <span>  <span class="co"># force = TRUE        # when encountering issues</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-</div>
 </div>
 <div class="section level2">
 <h2 id="quick-start">Quick Start<a class="anchor" aria-label="anchor" href="#quick-start"></a>

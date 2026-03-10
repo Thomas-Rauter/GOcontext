@@ -166,7 +166,11 @@
 <h3 id="term2gene-mapping">TERM2GENE mapping<a class="anchor" aria-label="anchor" href="#term2gene-mapping"></a>
 </h3>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">term2gene</span> <span class="op">&lt;-</span> <span class="fu">GOcontext</span><span class="fu">::</span><span class="fu"><a href="../reference/as_term2gene.html">as_term2gene</a></span><span class="op">(</span><span class="va">go_sub</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">term2gene</span> <span class="op">&lt;-</span> <span class="fu">GOcontext</span><span class="fu">::</span><span class="fu"><a href="../reference/as_term2gene.html">as_term2gene</a></span><span class="op">(</span></span>
+<span>    go        <span class="op">=</span> <span class="va">go_sub</span>,</span>
+<span>    minGSSize <span class="op">=</span> <span class="fl">10</span>,</span>
+<span>    maxGSSize <span class="op">=</span> <span class="fl">500</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">term2gene</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##         term   gene</span></span>
 <span><span class="co">## 1 GO:0006098 944748</span></span>
@@ -180,7 +184,11 @@
 <h3 id="term2name-mapping">TERM2NAME mapping<a class="anchor" aria-label="anchor" href="#term2name-mapping"></a>
 </h3>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">term2name</span> <span class="op">&lt;-</span> <span class="fu">GOcontext</span><span class="fu">::</span><span class="fu"><a href="../reference/as_term2name.html">as_term2name</a></span><span class="op">(</span><span class="va">go_sub</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">term2name</span> <span class="op">&lt;-</span> <span class="fu">GOcontext</span><span class="fu">::</span><span class="fu"><a href="../reference/as_term2name.html">as_term2name</a></span><span class="op">(</span></span>
+<span>    go        <span class="op">=</span> <span class="va">go_sub</span>,</span>
+<span>    minGSSize <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>    maxGSSize <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">term2name</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">##         term                                          name</span></span>
 <span><span class="co">## 1 GO:0006098                       pentose-phosphate shunt</span></span>
