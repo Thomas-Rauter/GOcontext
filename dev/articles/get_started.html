@@ -100,7 +100,6 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">go_bp</span> <span class="op">&lt;-</span> <span class="fu">GOcontext</span><span class="fu">::</span><span class="fu"><a href="../reference/load_go.html">load_go</a></span><span class="op">(</span><span class="st">"BP"</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## </span></span></code></pre>
-<pre><code><span><span class="co">## 'select()' returned 1:1 mapping between keys and columns</span></span></code></pre>
 <p>The returned object contains:</p>
 <ul>
 <li>GO term metadata</li>
@@ -113,19 +112,18 @@
 <h2 id="attach-organism-annotations">2. Attach organism annotations<a class="anchor" aria-label="anchor" href="#attach-organism-annotations"></a>
 </h2>
 <p>GO enrichment requires mappings between GO terms and genes. These are obtained from an organism annotation package (<code>OrgDb</code>).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">go_bp</span> <span class="op">&lt;-</span> <span class="fu">GOcontext</span><span class="fu">::</span><span class="fu"><a href="../reference/attach_org.html">attach_org</a></span><span class="op">(</span></span>
 <span>    go <span class="op">=</span> <span class="va">go_bp</span>,</span>
 <span>    OrgDb <span class="op">=</span> <span class="va">org.EcK12.eg.db</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## 'select()' returned 1:many mapping between keys and columns</span></span></code></pre>
 <p>This attaches a GO-to-gene mapping table to the GO graph object.</p>
 </div>
 <div class="section level2">
 <h2 id="restrict-the-graph-to-mapped-terms">3. Restrict the graph to mapped terms<a class="anchor" aria-label="anchor" href="#restrict-the-graph-to-mapped-terms"></a>
 </h2>
 <p>Many GO terms have no gene annotations for a given organism. These terms cannot contribute to enrichment results and can therefore be removed before further analysis.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">go_bp_mapped</span> <span class="op">&lt;-</span> <span class="fu">GOcontext</span><span class="fu">::</span><span class="fu"><a href="../reference/filter_mapped.html">filter_mapped</a></span><span class="op">(</span><span class="va">go_bp</span><span class="op">)</span></span></code></pre></div>
 <p>The returned object is a <code>GOSubgraph</code> containing only terms that have at least one gene mapping.</p>
 <p>This step often reduces the ontology size substantially.</p>
@@ -142,7 +140,7 @@
 <strong>exclude</strong> – remove selected terms and their descendants</li>
 </ul>
 <p>Example: restrict the graph to the descendants of a particular GO term.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">go_sub</span> <span class="op">&lt;-</span> <span class="fu">GOcontext</span><span class="fu">::</span><span class="fu"><a href="../reference/subset_go.html">subset_go</a></span><span class="op">(</span></span>
 <span>    go <span class="op">=</span> <span class="va">go_bp_mapped</span>,</span>
 <span>    ids <span class="op">=</span> <span class="st">"GO:0006740"</span>,</span>
@@ -165,7 +163,7 @@
 <div class="section level3">
 <h3 id="term2gene-mapping">TERM2GENE mapping<a class="anchor" aria-label="anchor" href="#term2gene-mapping"></a>
 </h3>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">term2gene</span> <span class="op">&lt;-</span> <span class="fu">GOcontext</span><span class="fu">::</span><span class="fu"><a href="../reference/as_term2gene.html">as_term2gene</a></span><span class="op">(</span></span>
 <span>    go        <span class="op">=</span> <span class="va">go_sub</span>,</span>
 <span>    minGSSize <span class="op">=</span> <span class="fl">10</span>,</span>
@@ -183,7 +181,7 @@
 <div class="section level3">
 <h3 id="term2name-mapping">TERM2NAME mapping<a class="anchor" aria-label="anchor" href="#term2name-mapping"></a>
 </h3>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">term2name</span> <span class="op">&lt;-</span> <span class="fu">GOcontext</span><span class="fu">::</span><span class="fu"><a href="../reference/as_term2name.html">as_term2name</a></span><span class="op">(</span></span>
 <span>    go        <span class="op">=</span> <span class="va">go_sub</span>,</span>
 <span>    minGSSize <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -202,7 +200,7 @@
 <h2 id="run-enrichment-analysis">6. Run enrichment analysis<a class="anchor" aria-label="anchor" href="#run-enrichment-analysis"></a>
 </h2>
 <p>Example workflow with <code>clusterProfiler</code>:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">clusterProfiler</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">enrichment_results</span> <span class="op">&lt;-</span> <span class="fu">clusterProfiler</span><span class="fu">::</span><span class="fu">enricher</span><span class="op">(</span></span>
@@ -216,9 +214,42 @@
 <h2 id="interactive-exploration">Interactive exploration<a class="anchor" aria-label="anchor" href="#interactive-exploration"></a>
 </h2>
 <p><code>GOcontext</code> also provides a console browser for exploring the GO hierarchy interactively.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">GOcontext</span><span class="fu">::</span><span class="fu"><a href="../reference/browse_go.html">browse_go</a></span><span class="op">(</span><span class="va">go_bp</span><span class="op">)</span></span></code></pre></div>
 <p>The browser allows navigation through the GO DAG and selection of terms of interest. The selected terms can then be used as input for <code><a href="../reference/subset_go.html">subset_go()</a></code>.</p>
+</div>
+<div class="section level2">
+<h2 id="harmonizing-gene-identifiers">Harmonizing gene identifiers<a class="anchor" aria-label="anchor" href="#harmonizing-gene-identifiers"></a>
+</h2>
+<p>Gene lists used for enrichment analyses often contain mixed identifier types (e.g. gene symbols, Entrez IDs, aliases). Before running enrichment, it can be useful to check whether the identifiers match the annotation database used to define the GO universe.</p>
+<p><code>GOcontext</code> provides <code><a href="../reference/harmonize_gene_ids.html">harmonize_gene_ids()</a></code> to diagnose and harmonize such identifiers.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">genes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"b0002"</span>,    <span class="co"># SYMBOL</span></span>
+<span>    <span class="st">"thrA"</span>,     <span class="co"># ALIAS</span></span>
+<span>    <span class="st">"944742"</span>,   <span class="co"># ENTREZID</span></span>
+<span>    <span class="st">"not_a_gene"</span>,</span>
+<span>    <span class="cn">NA_character_</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">GOcontext</span><span class="fu">::</span><span class="fu"><a href="../reference/harmonize_gene_ids.html">harmonize_gene_ids</a></span><span class="op">(</span></span>
+<span>    genes <span class="op">=</span> <span class="va">genes</span>,</span>
+<span>    OrgDb <span class="op">=</span> <span class="va">org.EcK12.eg.db</span>,</span>
+<span>    to_keytype <span class="op">=</span> <span class="st">"ENTREZID"</span>,</span>
+<span>    from_keytypes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"SYMBOL"</span>, <span class="st">"ALIAS"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The result is a table aligned with the input vector showing whether each identifier matched the target key type, matched a fallback type, or could not be mapped.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">##        input matches_target from_match_status to_match_status harmonized</span></span>
+<span><span class="co">## 1      b0002          FALSE              none            &lt;NA&gt;       &lt;NA&gt;</span></span>
+<span><span class="co">## 2       thrA          FALSE         ambiguous            &lt;NA&gt;       &lt;NA&gt;</span></span>
+<span><span class="co">## 3     944742           TRUE              &lt;NA&gt;            &lt;NA&gt;     944742</span></span>
+<span><span class="co">## 4 not_a_gene          FALSE              none            &lt;NA&gt;       &lt;NA&gt;</span></span>
+<span><span class="co">## 5       &lt;NA&gt;          FALSE              &lt;NA&gt;            &lt;NA&gt;       &lt;NA&gt;</span></span></code></pre>
+<p>If a unique mapping exists, the harmonized identifiers can be extracted for downstream analyses.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">gene_ids</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">harmonized</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
@@ -239,7 +270,7 @@
 <li>Running enrichment analysis</li>
 </ol>
 <p>By explicitly defining the tested GO universe before enrichment, <code>GOcontext</code> reduces the multiple testing burden while preserving the ontology structure and ensuring transparent analysis workflows.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## R version 4.5.2 (2025-10-31)</span></span>
 <span><span class="co">## Platform: x86_64-pc-linux-gnu</span></span>
