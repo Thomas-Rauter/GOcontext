@@ -29,10 +29,17 @@ filter_mapped <- function(go) {
 
     map <- go@map
     universe <- .extract_universe(go = go)
-    keep_ids <- .find_keep_ids(
+
+    mapped_ids <- .find_keep_ids(
         map = map,
         universe = universe
-        )
+    )
+
+    keep_ids <- .ancestor_closure(
+        seed_ids = mapped_ids,
+        parents  = go@parents,
+        universe = universe
+    )
 
     edges_sub <- .induce_edges(
         edges = go@edges,
@@ -48,11 +55,12 @@ filter_mapped <- function(go) {
     terms_sub <- .subset_to_mapped(
         go = go,
         keep_ids = keep_ids
-        )
+    )
+
     drop_ids <- setdiff(
         universe,
         keep_ids
-        )
+    )
 
     methods::new(
         "GOSubgraph",
@@ -60,7 +68,7 @@ filter_mapped <- function(go) {
         version  = go@version,
         keep_ids = keep_ids,
         drop_ids = drop_ids,
-        seed_ids = character(0),
+        seed_ids = mapped_ids,
         mode     = "keep",
         terms    = terms_sub,
         edges    = edges_sub,
@@ -122,6 +130,73 @@ filter_mapped <- function(go) {
         keep,
         universe
         )
+}
+
+
+#' Compute ancestor closure of GO terms
+#'
+#' @description
+#' Starting from a set of seed GO IDs, traverses the GO DAG upward through
+#' parent relationships and returns the seed terms together with all of
+#' their ancestors.
+#'
+#' The result is optionally restricted to a supplied universe of GO IDs.
+#'
+#' @param seed_ids `character()` GO IDs to start from.
+#' @param parents Named `list` mapping each GO ID to its direct parent GO IDs.
+#' @param universe Optional `character()` vector of GO IDs allowed in the
+#'   output. If supplied, the returned IDs are restricted to this set.
+#'
+#' @return `character()` vector containing `seed_ids` and all of their
+#'   ancestors.
+#'
+#' @noRd
+.ancestor_closure <- function(
+        seed_ids,
+        parents,
+        universe = NULL
+) {
+    seed_ids <- unique(seed_ids)
+    seed_ids <- seed_ids[!is.na(seed_ids)]
+
+    if (!is.null(universe)) {
+        .validate_keep_ids(universe, arg = "universe")
+        seed_ids <- intersect(seed_ids, universe)
+    }
+
+    if (!length(seed_ids)) {
+        return(character(0))
+    }
+
+    keep <- seed_ids
+    queue <- seed_ids
+
+    while (length(queue)) {
+        node <- queue[[1L]]
+        queue <- queue[-1L]
+
+        node_parents <- parents[[node]]
+
+        if (is.null(node_parents)) {
+            next
+        }
+
+        node_parents <- unique(node_parents)
+        node_parents <- node_parents[!is.na(node_parents)]
+
+        if (!is.null(universe)) {
+            node_parents <- intersect(node_parents, universe)
+        }
+
+        new_parents <- setdiff(node_parents, keep)
+
+        if (length(new_parents)) {
+            keep <- c(keep, new_parents)
+            queue <- c(queue, new_parents)
+        }
+    }
+
+    unique(keep)
 }
 
 
