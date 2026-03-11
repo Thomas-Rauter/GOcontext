@@ -67,6 +67,18 @@ add nodes of interest, and return the selected GO IDs.</p>
 <li><p><code>summary</code>: <code>data.frame</code> summarizing the selected terms.</p></li>
 </ul></div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"go_cc"</span>, package <span class="op">=</span> <span class="st">"GOcontext"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">browse_go</span><span class="op">(</span><span class="va">go_cc</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    <span class="va">res</span><span class="op">$</span><span class="va">ids</span></span></span>
+<span class="r-in"><span>    <span class="va">res</span><span class="op">$</span><span class="va">summary</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
